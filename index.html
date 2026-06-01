@@ -7,309 +7,140 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400&display=swap" rel="stylesheet">
-
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-  --bg:            #F4EFE6;
-  --bg-card:       #EDE7DA;
-  --bg-input:      #FDFAF5;
-  --text:          #1C1915;
-  --text-dim:      #4B453C;
-  --text-muted:    #8A8278;
-  --crimson:       #8B2E2E;
-  --crimson-hover: #A03535;
-  --crimson-light: rgba(139,46,46,0.07);
-  --crimson-border:rgba(139,46,46,0.28);
-  --border:        rgba(28,25,21,0.12);
-  --border-strong: rgba(28,25,21,0.2);
-  --serif:         'Lora', Georgia, serif;
-  --sans:          'Inter', system-ui, sans-serif;
-  --ease:          cubic-bezier(0.22, 1, 0.36, 1);
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F4EFE6;--bg-card:#EDE7DA;--bg-input:#FDFAF5;--bg-panel:#E8E1D4;
+  --text:#1C1915;--text-dim:#4B453C;--text-muted:#8A8278;
+  --crimson:#8B2E2E;--crimson-hover:#A03535;--crimson-light:rgba(139,46,46,0.07);--crimson-border:rgba(139,46,46,0.28);
+  --border:rgba(28,25,21,0.12);--border-strong:rgba(28,25,21,0.2);
+  --serif:'Lora',Georgia,serif;--sans:'Inter',system-ui,sans-serif;--ease:cubic-bezier(0.22,1,0.36,1);
 }
-
-html, body { height: 100%; }
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--serif);
-  font-weight: 400;
-  line-height: 1.6;
-  min-height: 100vh;
-  overflow-x: hidden;
-  opacity: 0;
-  animation: fadeIn 600ms var(--ease) 60ms forwards;
+body.dark{
+  --bg:#161310;--bg-card:#1E1B17;--bg-input:#232019;--bg-panel:#1A1714;
+  --text:#EDE7DA;--text-dim:#B8B0A4;--text-muted:#6B6560;
+  --crimson:#C0504A;--crimson-hover:#D06060;--crimson-light:rgba(192,80,74,0.1);--crimson-border:rgba(192,80,74,0.3);
+  --border:rgba(237,231,218,0.1);--border-strong:rgba(237,231,218,0.18);
 }
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--serif);font-weight:400;line-height:1.6;min-height:100vh;overflow-x:hidden;opacity:0;animation:fadeIn 600ms var(--ease) 60ms forwards;transition:background 250ms,color 250ms}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 
-/* ── Shared search bar ── */
-.search-form { width: 100%; max-width: 560px; display: flex; }
+.search-wrap{position:relative;width:100%;max-width:560px}
+.search-form{width:100%;display:flex}
+.search-input{flex:1;background:var(--bg-input);border:1px solid var(--border-strong);border-right:none;border-radius:2px 0 0 2px;padding:.75rem 1.1rem;font-family:var(--serif);font-size:.95rem;color:var(--text);outline:none;caret-color:var(--crimson);transition:border-color 180ms,box-shadow 180ms}
+.search-input::placeholder{color:var(--text-muted);font-style:italic}
+.search-input:focus{border-color:var(--crimson-border);box-shadow:0 0 0 2px var(--crimson-light)}
+.search-btn{background:var(--crimson);border:1px solid var(--crimson);border-radius:0 2px 2px 0;padding:.75rem 1.2rem;color:#FAF6EF;font-family:var(--sans);font-size:.7rem;font-weight:400;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;gap:.45rem;transition:background 180ms}
+.search-btn:hover{background:var(--crimson-hover);border-color:var(--crimson-hover)}
+.search-btn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
-.search-input {
-  flex: 1;
-  background: var(--bg-input);
-  border: 1px solid var(--border-strong);
-  border-right: none;
-  border-radius: 2px 0 0 2px;
-  padding: 0.75rem 1.1rem;
-  font-family: var(--serif);
-  font-size: 0.95rem;
-  font-weight: 400;
-  color: var(--text);
-  outline: none;
-  caret-color: var(--crimson);
-  transition: border-color 180ms, box-shadow 180ms;
-}
-.search-input::placeholder { color: var(--text-muted); font-style: italic; }
-.search-input:focus {
-  border-color: var(--crimson-border);
-  box-shadow: 0 0 0 2px var(--crimson-light);
-}
-.search-input:focus + .search-btn { border-color: var(--crimson-border); }
+.history-dropdown{position:absolute;top:100%;left:0;width:calc(100% - 70px);background:var(--bg-input);border:1px solid var(--border-strong);border-top:none;border-radius:0 0 2px 2px;z-index:200;display:none}
+.history-dropdown.open{display:block}
+.history-item{padding:.5rem 1.1rem;font-family:var(--serif);font-size:.82rem;color:var(--text-dim);cursor:pointer;display:flex;align-items:center;gap:.6rem;transition:background 120ms}
+.history-item:hover{background:var(--crimson-light);color:var(--text)}
+.history-item svg{width:10px;height:10px;stroke:var(--text-muted);fill:none;stroke-width:2;flex-shrink:0}
+.history-clear{padding:.35rem 1.1rem;font-family:var(--sans);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);cursor:pointer;border-top:1px solid var(--border);text-align:right;transition:color 120ms}
+.history-clear:hover{color:var(--crimson)}
 
-.search-btn {
-  background: var(--crimson);
-  border: 1px solid var(--crimson);
-  border-radius: 0 2px 2px 0;
-  padding: 0.75rem 1.2rem;
-  color: #FAF6EF;
-  font-family: var(--sans);
-  font-size: 0.7rem;
-  font-weight: 400;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  cursor: pointer;
-  display: flex; align-items: center; gap: 0.45rem;
-  transition: background 180ms;
-}
-.search-btn:hover { background: var(--crimson-hover); border-color: var(--crimson-hover); }
-.search-btn svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+#view-home{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:4rem 1.5rem}
+#view-home.hidden{display:none}
+.top-rule{position:absolute;top:0;left:0;right:0;height:3px;background:var(--crimson)}
+.logo-wrap{text-align:center;margin-bottom:2.6rem}
+.logo-main{font-family:var(--serif);font-weight:600;font-size:clamp(3.8rem,9vw,6.5rem);color:var(--text);letter-spacing:.1em;line-height:1;display:block;user-select:none}
+.logo-sub{font-family:var(--serif);font-weight:400;font-style:italic;font-size:clamp(.85rem,2vw,1.15rem);color:var(--crimson);letter-spacing:.08em;display:block;margin-top:.4rem;user-select:none}
+.logo-rule{width:48px;height:1px;background:var(--crimson);margin:1.8rem auto 2rem;opacity:.5}
+.home-foot{position:absolute;bottom:1.8rem;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:1rem}
+.news-btn{display:inline-flex;align-items:center;gap:.45rem;font-family:var(--sans);font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);text-decoration:none;border:1px solid var(--border-strong);border-radius:2px;padding:.45rem .9rem;transition:color 160ms,border-color 160ms}
+.news-btn:hover{color:var(--crimson);border-color:var(--crimson-border)}
+.news-btn svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.dark-toggle{background:none;border:1px solid var(--border-strong);border-radius:2px;padding:.45rem .6rem;cursor:pointer;color:var(--text-muted);display:flex;align-items:center;transition:color 160ms,border-color 160ms}
+.dark-toggle:hover{color:var(--crimson);border-color:var(--crimson-border)}
+.dark-toggle svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
-/* ════ HOME ════ */
-#view-home {
-  position: relative;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  min-height: 100vh; padding: 4rem 1.5rem;
-}
-#view-home.hidden { display: none; }
+.home-cats{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-top:1.6rem;max-width:480px}
+.cat-chip{font-family:var(--sans);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);border:1px solid var(--border);border-radius:2px;padding:.3rem .7rem;cursor:pointer;transition:color 140ms,border-color 140ms,background 140ms;background:none}
+.cat-chip:hover{color:var(--crimson);border-color:var(--crimson-border);background:var(--crimson-light)}
 
-/* Top rule */
-.top-rule { position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--crimson); }
+.home-recent{margin-top:2.2rem;width:100%;max-width:560px;text-align:left}
+.home-recent-label{font-family:var(--sans);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.6rem;display:flex;align-items:center;gap:.5rem}
+.home-recent-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.recent-list{display:flex;flex-direction:column;gap:.25rem}
+.recent-item{display:flex;align-items:baseline;gap:.6rem;font-family:var(--serif);font-size:.78rem;color:var(--text-dim);text-decoration:none;padding:.3rem 0;border-bottom:1px solid var(--border);transition:color 130ms}
+.recent-item:hover{color:var(--crimson)}
+.recent-item-title{flex:1}
+.recent-item-time{font-family:var(--sans);font-size:.6rem;color:var(--text-muted);flex-shrink:0}
 
-/* Logo */
-.logo-wrap { text-align: center; margin-bottom: 2.6rem; }
+#view-results{display:none;flex-direction:column;min-height:100vh}
+#view-results.visible{display:flex}
+.results-top-rule{height:3px;background:var(--crimson);flex-shrink:0}
+.results-header{display:flex;align-items:center;gap:1.5rem;padding:1rem 2.6rem;border-bottom:1px solid var(--border-strong);background:var(--bg);position:sticky;top:0;z-index:100}
+.results-logo{cursor:pointer;flex-shrink:0;line-height:1}
+.results-logo-main{font-family:var(--serif);font-weight:600;font-size:1.3rem;color:var(--text);letter-spacing:.1em;user-select:none;display:block}
+.results-logo-sub{font-family:var(--serif);font-weight:400;font-style:italic;font-size:.58rem;color:var(--crimson);letter-spacing:.1em;user-select:none;display:block;margin-top:.1rem}
+.results-header .search-wrap{flex:1;max-width:560px}
+.results-header .search-input{padding:.6rem .95rem;font-size:.88rem}
+.results-header .search-btn{padding:.6rem 1rem}
+.header-dark-toggle{background:none;border:none;cursor:pointer;color:var(--text-muted);padding:.3rem;transition:color 160ms;flex-shrink:0}
+.header-dark-toggle:hover{color:var(--crimson)}
+.header-dark-toggle svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block}
 
-.logo-main {
-  font-family: var(--serif);
-  font-weight: 600;
-  font-size: clamp(3.8rem, 9vw, 6.5rem);
-  color: var(--text);
-  letter-spacing: 0.1em;
-  line-height: 1;
-  display: block;
-  user-select: none;
-}
+.results-tabs{display:flex;padding:0 2.6rem;border-bottom:1px solid var(--border-strong);background:var(--bg);position:sticky;top:57px;z-index:99}
+.tab-btn{font-family:var(--sans);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);border:none;background:none;cursor:pointer;padding:.65rem 1rem;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color 150ms,border-color 150ms}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--crimson);border-bottom-color:var(--crimson)}
 
-.logo-sub {
-  font-family: var(--serif);
-  font-weight: 400;
-  font-style: italic;
-  font-size: clamp(0.85rem, 2vw, 1.15rem);
-  color: var(--crimson);
-  letter-spacing: 0.08em;
-  display: block;
-  margin-top: 0.4rem;
-  user-select: none;
-}
+.results-body{padding:1.8rem 2.6rem 5rem;flex:1;max-width:860px}
+.results-status{font-family:var(--sans);font-size:.67rem;color:var(--text-muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:1.4rem;padding-bottom:.8rem;border-bottom:1px solid var(--border)}
+.results-status .query-echo{color:var(--text-dim);font-style:italic;font-family:var(--serif)}
+.did-you-mean{font-family:var(--serif);font-size:.82rem;color:var(--text-muted);margin-bottom:1rem;font-style:italic}
+.did-you-mean a{color:var(--crimson);cursor:pointer;text-decoration:underline}
 
-/* Thin rule under logo */
-.logo-rule {
-  width: 48px; height: 1px;
-  background: var(--crimson);
-  margin: 1.8rem auto 2rem;
-  opacity: 0.5;
-}
+.section-label{font-family:var(--sans);font-size:.6rem;color:var(--crimson);letter-spacing:.18em;text-transform:uppercase;margin-bottom:.9rem;display:flex;align-items:center;gap:.7rem}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
 
-.tagline {
-  font-family: var(--serif);
-  font-weight: 400;
-  font-style: italic;
-  font-size: 0.82rem;
-  color: var(--text-muted);
-  letter-spacing: 0.03em;
-  margin-bottom: 2.2rem;
-  text-align: center;
-}
+.knowledge-panel{background:var(--bg-panel);border:1px solid var(--border-strong);border-left:3px solid var(--crimson);border-radius:2px;padding:1.1rem 1.3rem;margin-bottom:1.8rem}
+.kp-title{font-family:var(--serif);font-weight:600;font-size:1.05rem;color:var(--text);margin-bottom:.3rem}
+.kp-desc{font-family:var(--serif);font-size:.82rem;color:var(--text-dim);line-height:1.7;margin-bottom:.7rem}
+.kp-meta{font-family:var(--sans);font-size:.62rem;color:var(--text-muted);letter-spacing:.05em;display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:.5rem}
+.kp-meta strong{color:var(--text-dim)}
+.kp-source{font-family:var(--sans);font-size:.58rem;color:var(--text-muted);margin-top:.4rem}
+.kp-source a{color:var(--crimson);text-decoration:none}
+.kp-source a:hover{text-decoration:underline}
 
-/* Footer */
-.home-foot {
-  position: absolute; bottom: 1.8rem; left: 0; right: 0;
-  text-align: center;
-}
-.home-foot-text {
-  font-family: var(--sans);
-  font-size: 0.62rem;
-  color: var(--text-muted);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
+.dict-panel{background:var(--bg-panel);border:1px solid var(--border-strong);border-left:3px solid var(--crimson);border-radius:2px;padding:1.1rem 1.3rem;margin-bottom:1.8rem}
+.dict-word{font-family:var(--serif);font-weight:600;font-size:1.1rem;color:var(--text)}
+.dict-phonetic{font-family:var(--serif);font-style:italic;font-size:.82rem;color:var(--text-muted);margin-left:.5rem}
+.dict-pos{font-family:var(--sans);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--crimson);margin:.7rem 0 .3rem}
+.dict-def{font-family:var(--serif);font-size:.82rem;color:var(--text-dim);line-height:1.65;margin-bottom:.25rem}
+.dict-example{font-family:var(--serif);font-style:italic;font-size:.78rem;color:var(--text-muted);padding-left:.8rem;border-left:2px solid var(--border-strong);margin-top:.2rem}
 
-/* ════ RESULTS ════ */
-#view-results { display: none; flex-direction: column; min-height: 100vh; }
-#view-results.visible { display: flex; }
+.wiki-results{margin-bottom:2.2rem}
+.wiki-card,.result-card{display:block;text-decoration:none;background:var(--bg-card);border:1px solid var(--border);border-radius:2px;padding:.9rem 1.1rem;margin-bottom:.4rem;transition:border-color 160ms,background 160ms}
+.wiki-card:hover,.result-card:hover{border-color:var(--crimson-border);background:var(--crimson-light)}
+.wiki-card-title,.result-card-title{font-family:var(--serif);font-weight:500;font-size:.9rem;color:var(--crimson);margin-bottom:.25rem;display:block}
+.wiki-card-snippet,.result-card-snippet{font-family:var(--serif);font-size:.78rem;color:var(--text-dim);line-height:1.65}
+.wiki-card-snippet b,.result-card-snippet b{font-weight:600;color:var(--text)}
+.wiki-card-source,.result-card-source{font-family:var(--sans);font-size:.62rem;color:var(--text-muted);letter-spacing:.05em;margin-top:.35rem;display:block}
+.wiki-empty,.loading-text{font-family:var(--serif);font-style:italic;font-size:.8rem;color:var(--text-muted);padding:.6rem 0}
 
-.results-top-rule { height: 3px; background: var(--crimson); flex-shrink: 0; }
+.image-strip{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.8rem}
+.image-strip-item{display:block;text-decoration:none;border:1px solid var(--border);border-radius:2px;overflow:hidden;transition:border-color 160ms;flex:0 0 auto}
+.image-strip-item:hover{border-color:var(--crimson-border)}
+.image-strip-item img{display:block;width:140px;height:100px;object-fit:cover;opacity:.9}
+.image-strip-caption{font-family:var(--sans);font-size:.58rem;color:var(--text-muted);letter-spacing:.05em;padding:.3rem .4rem;background:var(--bg-card);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;display:block}
 
-.results-header {
-  display: flex; align-items: center; gap: 2rem;
-  padding: 1.1rem 2.6rem;
-  border-bottom: 1px solid var(--border-strong);
-  background: var(--bg);
-  position: sticky; top: 0; z-index: 100;
-}
+.web-results-wrap{margin-top:.4rem}
 
-.results-logo { cursor: pointer; flex-shrink: 0; line-height: 1; }
-.results-logo-main {
-  font-family: var(--serif); font-weight: 600; font-size: 1.3rem;
-  color: var(--text); letter-spacing: 0.1em; user-select: none; display: block;
-}
-.results-logo-sub {
-  font-family: var(--serif); font-weight: 400; font-style: italic;
-  font-size: 0.58rem; color: var(--crimson); letter-spacing: 0.1em;
-  user-select: none; display: block; margin-top: 0.1rem;
-}
-
-.results-header .search-form { flex: 1; max-width: 560px; }
-.results-header .search-input { padding: 0.6rem 0.95rem; font-size: 0.88rem; }
-.results-header .search-btn  { padding: 0.6rem 1rem; }
-
-.results-body { padding: 2rem 2.6rem 5rem; flex: 1; max-width: 820px; }
-
-.results-status {
-  font-family: var(--sans); font-size: 0.67rem;
-  color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase;
-  margin-bottom: 1.8rem; padding-bottom: 0.9rem;
-  border-bottom: 1px solid var(--border);
-}
-.results-status .query-echo { color: var(--text-dim); font-style: italic; font-family: var(--serif); }
-
-/* ── Wiki results section ── */
-.section-label {
-  font-family: var(--sans); font-size: 0.6rem;
-  color: var(--crimson); letter-spacing: 0.18em; text-transform: uppercase;
-  margin-bottom: 0.9rem; display: flex; align-items: center; gap: 0.7rem;
-}
-.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-
-.wiki-results { margin-bottom: 2.4rem; }
-
-.wiki-card {
-  display: block; text-decoration: none;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 2px;
-  padding: 0.9rem 1.1rem;
-  margin-bottom: 0.4rem;
-  transition: border-color 160ms, background 160ms;
-}
-.wiki-card:hover {
-  border-color: var(--crimson-border);
-  background: var(--crimson-light);
-}
-.wiki-card-title {
-  font-family: var(--serif); font-weight: 500; font-size: 0.9rem;
-  color: var(--crimson); margin-bottom: 0.25rem; display: block;
-}
-.wiki-card-snippet {
-  font-family: var(--serif); font-size: 0.78rem;
-  color: var(--text-dim); line-height: 1.65;
-}
-.wiki-card-snippet b { font-weight: 600; color: var(--text); }
-.wiki-card-source {
-  font-family: var(--sans); font-size: 0.62rem;
-  color: var(--text-muted); letter-spacing: 0.05em;
-  margin-top: 0.35rem; display: block;
-}
-
-.wiki-empty {
-  font-family: var(--serif); font-style: italic;
-  font-size: 0.8rem; color: var(--text-muted);
-  padding: 0.8rem 0; margin-bottom: 2rem;
-}
-
-/* ── Web results (CSE) section ── */
-.web-results-wrap { margin-top: 0.4rem; }
-
-/* ── CSE overrides ── */
-.gsc-search-box, .gsc-search-box-tools, .gsc-above-wrapper-area,
-.gsc-orderby-container, .gsc-result-info-container, .gsst_a { display: none !important; }
-
-.gsc-control-cse, .gsc-control-cse-en {
-  background: transparent !important; border: none !important;
-  padding: 0 !important; font-family: var(--serif) !important;
-}
-
-.gsc-webResult.gsc-result {
-  background: var(--bg-card) !important;
-  border: 1px solid var(--border) !important;
-  border-radius: 2px !important;
-  padding: 0.9rem 1.1rem !important;
-  margin-bottom: 0.4rem !important;
-  transition: border-color 160ms, background 160ms !important;
-}
-.gsc-webResult.gsc-result:hover {
-  border-color: var(--crimson-border) !important;
-  background: var(--crimson-light) !important;
-}
-
-.gs-title, .gs-title b, .gs-title * {
-  color: var(--crimson) !important;
-  font-family: var(--serif) !important; font-weight: 500 !important;
-  font-size: 0.9rem !important; text-decoration: none !important;
-}
-
-.gs-visibleUrl, .gs-visibleUrl-long, .gsc-url-top, .gsc-url-bottom {
-  color: var(--text-muted) !important; font-family: var(--sans) !important;
-  font-weight: 300 !important; font-size: 0.65rem !important; letter-spacing: 0.04em !important;
-}
-
-.gs-snippet, .gs-bidi-start-align div {
-  font-family: var(--serif) !important; font-size: 0.78rem !important;
-  color: var(--text-dim) !important; line-height: 1.65 !important;
-}
-.gs-snippet b { color: var(--text) !important; font-weight: 600 !important; }
-
-.gsc-cursor-box { margin-top: 1.8rem !important; }
-.gsc-cursor-page {
-  background: var(--bg-input) !important;
-  border: 1px solid var(--border-strong) !important; border-radius: 2px !important;
-  color: var(--text-dim) !important; font-family: var(--serif) !important;
-  font-size: 0.75rem !important; padding: 0.3rem 0.65rem !important;
-  margin-right: 0.25rem !important; display: inline-block !important; cursor: pointer !important;
-  transition: all 150ms !important;
-}
-.gsc-cursor-current-page {
-  background: var(--crimson) !important; border-color: var(--crimson) !important;
-  color: #FAF6EF !important;
-}
-.gsc-cursor-page:hover { border-color: var(--crimson-border) !important; color: var(--crimson) !important; }
-
-.gs-no-results-result .gs-snippet {
-  background: transparent !important; border: 1px solid var(--border) !important;
-  border-radius: 2px !important; color: var(--text-muted) !important;
-  font-style: italic !important; padding: 1rem !important;
-}
-
-.gsc-adBlock, .gsc-adBlock-container, .gcsc-branding,
-.gcsc-branding-clickable, .gcsc-find-more-on-google,
-.gcsc-find-more-on-google-root, .gcsc-branding-text,
-.gcsc-branding-img, .gcsc-branding-img-noclear { display: none !important; }
-
-.gsc-thumbnail { border-radius: 1px !important; opacity: 0.8 !important; border: 1px solid var(--border) !important; }
+.bookmarks-panel{margin-bottom:2rem}
+.bookmark-empty{font-family:var(--serif);font-style:italic;font-size:.8rem;color:var(--text-muted);padding:.6rem 0}
+.bookmark-item{display:flex;align-items:center;gap:.6rem;background:var(--bg-card);border:1px solid var(--border);border-radius:2px;padding:.7rem 1rem;margin-bottom:.35rem}
+.bookmark-item a{flex:1;text-decoration:none;font-family:var(--serif);font-size:.85rem;color:var(--crimson)}
+.bookmark-item a:hover{text-decoration:underline}
+.bookmark-remove{background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:.9rem;line-height:1;transition:color 130ms;padding:.1rem .2rem}
+.bookmark-remove:hover{color:var(--crimson)}
+.add-bookmark-btn{background:none;border:1px solid var(--border);border-radius:2px;padding:.3rem .7rem;font-family:var(--sans);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);cursor:pointer;transition:color 140ms,border-color 140ms;margin-bottom:1.2rem}
+.add-bookmark-btn:hover{color:var(--crimson);border-color:var(--crimson-border)}
 </style>
 </head>
 <body>
@@ -317,236 +148,409 @@ body {
 <!-- HOME -->
 <main id="view-home">
   <div class="top-rule"></div>
-
   <div class="logo-wrap">
     <span class="logo-main">CIVICA</span>
     <span class="logo-sub">Query</span>
   </div>
-
   <div class="logo-rule"></div>
-
-  <p class="tagline">The public information index of the Republic of Caprica.</p>
-
-  <form class="search-form" id="home-form">
-    <input class="search-input" id="home-input" type="text"
-      placeholder="Enter your query…"
-      autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="off">
-    <button class="search-btn" type="submit">
-      Search <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-    </button>
-  </form>
-
+  <div class="search-wrap">
+    <form class="search-form" id="home-form">
+      <input class="search-input" id="home-input" type="text" placeholder="Enter your query…" autocomplete="off" spellcheck="false">
+      <button class="search-btn" type="submit">Search <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </form>
+    <div class="history-dropdown" id="home-history"></div>
+  </div>
+  <div class="home-cats" id="home-cats"></div>
+  <div class="home-recent" id="home-recent" style="display:none">
+    <div class="home-recent-label">Recent on Civica Wiki</div>
+    <div class="recent-list" id="recent-list"></div>
+  </div>
   <div class="home-foot">
-    <div class="home-foot-text">Office of Public Information — Republic of Caprica — 2052</div>
+    <a class="news-btn" href="https://civica-group.github.io/news/" target="_blank" rel="noopener noreferrer">
+      Civica News <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+    </a>
+    <button class="dark-toggle" id="home-dark-toggle" title="Toggle dark mode">
+      <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
   </div>
 </main>
 
 <!-- RESULTS -->
 <section id="view-results">
   <div class="results-top-rule"></div>
-
   <header class="results-header">
     <div class="results-logo" id="back-home" role="button" tabindex="0">
       <span class="results-logo-main">CIVICA</span>
       <span class="results-logo-sub">Query</span>
     </div>
-    <form class="search-form" id="results-form">
-      <input class="search-input" id="results-input" type="text"
-        placeholder="Enter your query…"
-        autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="off">
-      <button class="search-btn" type="submit">
-        Search <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-      </button>
-    </form>
+    <div class="search-wrap">
+      <form class="search-form" id="results-form">
+        <input class="search-input" id="results-input" type="text" placeholder="Enter your query…" autocomplete="off" spellcheck="false">
+        <button class="search-btn" type="submit">Search <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      </form>
+      <div class="history-dropdown" id="results-history"></div>
+    </div>
+    <button class="header-dark-toggle" id="results-dark-toggle" title="Toggle dark mode">
+      <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
   </header>
-
+  <nav class="results-tabs">
+    <button class="tab-btn active" data-tab="all">All</button>
+    <button class="tab-btn" data-tab="civica">Civica Records</button>
+    <button class="tab-btn" data-tab="web">Web Index</button>
+    <button class="tab-btn" data-tab="bookmarks">Bookmarks</button>
+  </nav>
   <div class="results-body">
     <div class="results-status" id="results-status"></div>
+    <div id="dym-wrap"></div>
+    <button class="add-bookmark-btn" id="add-bookmark-btn">+ Bookmark this search</button>
 
-    <!-- Wiki results -->
-    <div id="wiki-section" class="wiki-results" style="display:none">
-      <div class="section-label">Civica Records</div>
-      <div id="wiki-results-inner"></div>
+    <div id="tab-all">
+      <div id="kp-section" style="display:none"></div>
+      <div id="dict-section" style="display:none"></div>
+      <div id="image-section" style="display:none">
+        <div class="section-label">Images</div>
+        <div class="image-strip" id="image-strip-inner"></div>
+      </div>
+      <div id="wiki-section" class="wiki-results" style="display:none">
+        <div class="section-label">Civica Records</div>
+        <div id="wiki-results-inner"></div>
+      </div>
+      <div class="web-results-wrap">
+        <div class="section-label" id="web-label" style="display:none">Web Index</div>
+        <div id="web-results-inner"></div>
+      </div>
     </div>
 
-    <!-- CSE web results -->
-    <div class="web-results-wrap">
-      <div class="section-label" id="web-label" style="display:none">Web Index</div>
-      <div id="cse-mount"></div>
+    <div id="tab-civica" style="display:none"><div id="wiki-tab-inner"></div></div>
+    <div id="tab-web" style="display:none"><div id="web-tab-inner"></div></div>
+    <div id="tab-bookmarks" style="display:none">
+      <div class="section-label">Saved Searches</div>
+      <div class="bookmarks-panel" id="bookmarks-list"></div>
     </div>
   </div>
 </section>
 
-<script async src="https://cse.google.com/cse.js?cx=b19f9875f71f2476a"></script>
-
 <script>
-const WIKI_API = 'https://caprica.miraheze.org/api.php';
+const CAPRICA_API='https://caprica.miraheze.org/api.php';
+const WIKI_SEARCH='https://en.wikipedia.org/w/api.php';
+const DICT_API='https://api.dictionaryapi.dev/api/v2/entries/en';
 
-const viewHome     = document.getElementById('view-home');
-const viewResults  = document.getElementById('view-results');
-const homeForm     = document.getElementById('home-form');
-const homeInput    = document.getElementById('home-input');
-const resultsForm  = document.getElementById('results-form');
-const resultsInput = document.getElementById('results-input');
-const statusEl     = document.getElementById('results-status');
-const wikiSection  = document.getElementById('wiki-section');
-const wikiInner    = document.getElementById('wiki-results-inner');
-const webLabel     = document.getElementById('web-label');
-const cseMount     = document.getElementById('cse-mount');
-const backBtn      = document.getElementById('back-home');
+const viewHome=document.getElementById('view-home');
+const viewResults=document.getElementById('view-results');
+const homeForm=document.getElementById('home-form');
+const homeInput=document.getElementById('home-input');
+const resultsForm=document.getElementById('results-form');
+const resultsInput=document.getElementById('results-input');
+const statusEl=document.getElementById('results-status');
+const dymWrap=document.getElementById('dym-wrap');
+const kpSection=document.getElementById('kp-section');
+const dictSection=document.getElementById('dict-section');
+const imageSection=document.getElementById('image-section');
+const imageInner=document.getElementById('image-strip-inner');
+const wikiSection=document.getElementById('wiki-section');
+const wikiInner=document.getElementById('wiki-results-inner');
+const webLabel=document.getElementById('web-label');
+const webInner=document.getElementById('web-results-inner');
+const wikiTabInner=document.getElementById('wiki-tab-inner');
+const webTabInner=document.getElementById('web-tab-inner');
+const bookmarksList=document.getElementById('bookmarks-list');
+const addBmBtn=document.getElementById('add-bookmark-btn');
+const backBtn=document.getElementById('back-home');
 
-/* ── Navigation ── */
-function goHome() {
-  viewHome.classList.remove('hidden');
-  viewResults.classList.remove('visible');
-  homeInput.focus();
+/* DARK MODE */
+const SUN=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`;
+const MOON=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+function applyDark(on){
+  document.body.classList.toggle('dark',on);
+  document.getElementById('home-dark-toggle').innerHTML=on?SUN:MOON;
+  document.getElementById('results-dark-toggle').innerHTML=on?SUN:MOON;
+  localStorage.setItem('cq-dark',on?'1':'0');
 }
-function goResults(q) {
-  viewHome.classList.add('hidden');
-  viewResults.classList.add('visible');
-  resultsInput.value = q;
-  statusEl.innerHTML = `Showing results for <span class="query-echo">${esc(q)}</span>`;
-  window.scrollTo(0, 0);
+if(localStorage.getItem('cq-dark')==='1')applyDark(true);
+document.getElementById('home-dark-toggle').addEventListener('click',()=>applyDark(!document.body.classList.contains('dark')));
+document.getElementById('results-dark-toggle').addEventListener('click',()=>applyDark(!document.body.classList.contains('dark')));
+
+/* HISTORY */
+function getHistory(){try{return JSON.parse(localStorage.getItem('cq-history')||'[]')}catch{return[]}}
+function addHistory(q){let h=getHistory().filter(x=>x!==q);h.unshift(q);localStorage.setItem('cq-history',JSON.stringify(h.slice(0,8)))}
+function renderHistory(inp,drop){
+  const h=getHistory();
+  const q=inp.value.trim().toLowerCase();
+  const f=q?h.filter(x=>x.toLowerCase().includes(q)):h;
+  if(!f.length){drop.classList.remove('open');return}
+  drop.innerHTML=f.map(i=>`<div class="history-item" data-q="${esc(i)}"><svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.75"/></svg>${esc(i)}</div>`).join('')+`<div class="history-clear">Clear history</div>`;
+  drop.classList.add('open');
+  drop.querySelectorAll('.history-item').forEach(el=>el.addEventListener('click',()=>{inp.value=el.dataset.q;drop.classList.remove('open');triggerSearch(el.dataset.q)}));
+  drop.querySelector('.history-clear').addEventListener('click',()=>{localStorage.removeItem('cq-history');drop.classList.remove('open')});
 }
+function setupHistory(inp,drop){
+  inp.addEventListener('input',()=>renderHistory(inp,drop));
+  inp.addEventListener('focus',()=>renderHistory(inp,drop));
+  document.addEventListener('click',e=>{if(!inp.contains(e.target)&&!drop.contains(e.target))drop.classList.remove('open')});
+}
+setupHistory(homeInput,document.getElementById('home-history'));
+setupHistory(resultsInput,document.getElementById('results-history'));
 
-backBtn.addEventListener('click', goHome);
-backBtn.addEventListener('keydown', e => e.key === 'Enter' && goHome());
-
-homeForm.addEventListener('submit', e => {
-  e.preventDefault();
-  const q = homeInput.value.trim();
-  if (!q) return;
-  goResults(q);
-  runAll(q);
+/* BOOKMARKS */
+function getBM(){try{return JSON.parse(localStorage.getItem('cq-bm')||'[]')}catch{return[]}}
+function saveBM(b){localStorage.setItem('cq-bm',JSON.stringify(b))}
+function renderBM(){
+  const b=getBM();
+  if(!b.length){bookmarksList.innerHTML='<div class="bookmark-empty">No saved searches yet.</div>';return}
+  bookmarksList.innerHTML=b.map(q=>`<div class="bookmark-item"><a href="#" data-q="${esc(q)}">${esc(q)}</a><button class="bookmark-remove" data-q="${esc(q)}">×</button></div>`).join('');
+  bookmarksList.querySelectorAll('a[data-q]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();triggerSearch(a.dataset.q);switchTab('all')}));
+  bookmarksList.querySelectorAll('.bookmark-remove').forEach(b=>b.addEventListener('click',()=>{saveBM(getBM().filter(x=>x!==b.dataset.q));renderBM()}));
+}
+let currentQ='';
+addBmBtn.addEventListener('click',()=>{
+  if(!currentQ)return;
+  const b=getBM().filter(x=>x!==currentQ);b.unshift(currentQ);saveBM(b);
+  addBmBtn.textContent='✓ Bookmarked';
+  setTimeout(()=>{addBmBtn.textContent='+ Bookmark this search'},1800);
 });
-resultsForm.addEventListener('submit', e => {
-  e.preventDefault();
-  const q = resultsInput.value.trim();
-  if (!q) return;
-  goResults(q);
-  runAll(q);
+
+/* TABS */
+function switchTab(name){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));
+  ['all','civica','web','bookmarks'].forEach(t=>document.getElementById('tab-'+t).style.display=t===name?'':'none');
+  if(name==='bookmarks')renderBM();
+}
+document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
+
+/* NAV */
+function goHome(){viewHome.classList.remove('hidden');viewResults.classList.remove('visible');homeInput.focus()}
+function goResults(q){
+  viewHome.classList.add('hidden');viewResults.classList.add('visible');
+  resultsInput.value=q;
+  statusEl.innerHTML=`Showing results for <span class="query-echo">${esc(q)}</span>`;
+  window.scrollTo(0,0);switchTab('all');
+}
+backBtn.addEventListener('click',goHome);
+backBtn.addEventListener('keydown',e=>e.key==='Enter'&&goHome());
+document.addEventListener('keydown',e=>{
+  if(e.key==='/'&&document.activeElement!==homeInput&&document.activeElement!==resultsInput){
+    e.preventDefault();
+    viewResults.classList.contains('visible')?resultsInput.focus():homeInput.focus();
+  }
+  if(e.key==='Escape'){document.getElementById('home-history').classList.remove('open');document.getElementById('results-history').classList.remove('open')}
+});
+function triggerSearch(q){if(!q)return;addHistory(q);goResults(q);runAll(q)}
+homeForm.addEventListener('submit',e=>{e.preventDefault();triggerSearch(homeInput.value.trim())});
+resultsForm.addEventListener('submit',e=>{e.preventDefault();triggerSearch(resultsInput.value.trim())});
+
+/* CATEGORIES */
+['Politics','People','Geography','History','Economy','Law','Military','Culture'].forEach(cat=>{
+  const btn=document.createElement('button');
+  btn.className='cat-chip';btn.textContent=cat;
+  btn.addEventListener('click',()=>triggerSearch(cat));
+  document.getElementById('home-cats').appendChild(btn);
 });
 
-/* ── Run both sources ── */
-function runAll(q) {
-  wikiSection.style.display = 'none';
-  wikiInner.innerHTML = '';
-  webLabel.style.display = 'none';
-  fetchWiki(q);
-  triggerCSE(q);
-}
-
-
-/* ══════════════════════════════
-   WIKI SEARCH (MediaWiki API)
-══════════════════════════════ */
-async function fetchWiki(q) {
-  try {
-    const url = `${WIKI_API}?action=query&list=search&srsearch=${encodeURIComponent(q)}&srnamespace=0&srlimit=5&srprop=snippet&format=json&origin=*`;
-    const res  = await fetch(url);
-    const data = await res.json();
-    const hits = data?.query?.search || [];
-
-    if (hits.length === 0) {
-      // No wiki results — don't show section at all
-      return;
-    }
-
-    wikiInner.innerHTML = '';
-    hits.forEach(hit => {
-      const a = document.createElement('a');
-      a.className = 'wiki-card';
-      a.href = `https://caprica.miraheze.org/wiki/${encodeURIComponent(hit.title.replace(/ /g,'_'))}`;
-      a.target = '_blank';
-      a.rel = 'noopener noreferrer';
-
-      const snippet = hit.snippet
-        ? hit.snippet.replace(/<span class="searchmatch">/g, '<b>').replace(/<\/span>/g, '</b>')
-        : '';
-
-      a.innerHTML = `
-        <span class="wiki-card-title">${esc(hit.title)}</span>
-        <span class="wiki-card-snippet">${snippet}</span>
-        <span class="wiki-card-source">caprica.miraheze.org/wiki/${esc(hit.title.replace(/ /g,'_'))}</span>`;
-
-      wikiInner.appendChild(a);
+/* RECENT EDITS */
+async function loadRecentEdits(){
+  try{
+    const p=new URLSearchParams({action:'query',list:'recentchanges',rcnamespace:'0',rclimit:'5',rcprop:'title|timestamp',rctype:'edit|new',format:'json',origin:'*'});
+    const res=await fetch(`${CAPRICA_API}?${p}`);
+    if(!res.ok)return;
+    const data=await res.json();
+    const changes=data?.query?.recentchanges||[];
+    if(!changes.length)return;
+    const rl=document.getElementById('recent-list');
+    rl.innerHTML='';
+    changes.forEach(c=>{
+      const a=document.createElement('a');
+      a.className='recent-item';
+      a.href=`https://caprica.miraheze.org/wiki/${encodeURIComponent(c.title.replace(/ /g,'_'))}`;
+      a.target='_blank';a.rel='noopener noreferrer';
+      const d=new Date(c.timestamp),diff=Date.now()-d.getTime(),m=Math.floor(diff/60000);
+      const rel=m<60?`${m}m ago`:m<1440?`${Math.floor(m/60)}h ago`:`${Math.floor(m/1440)}d ago`;
+      a.innerHTML=`<span class="recent-item-title">${esc(c.title)}</span><span class="recent-item-time">${rel}</span>`;
+      rl.appendChild(a);
     });
+    document.getElementById('home-recent').style.display='block';
+  }catch(e){}
+}
+loadRecentEdits();
 
-    wikiSection.style.display = 'block';
-
-  } catch(e) {
-    console.warn('Wiki fetch failed:', e);
-  }
+/* ORCHESTRATOR */
+function runAll(q){
+  currentQ=q;addBmBtn.textContent='+ Bookmark this search';
+  dymWrap.innerHTML='';
+  kpSection.style.display='none';kpSection.innerHTML='';
+  dictSection.style.display='none';dictSection.innerHTML='';
+  imageSection.style.display='none';imageInner.innerHTML='';
+  wikiSection.style.display='none';wikiInner.innerHTML='';
+  webLabel.style.display='none';
+  webInner.innerHTML='<div class="loading-text">Searching the index…</div>';
+  wikiTabInner.innerHTML='<div class="loading-text">Searching Civica Records…</div>';
+  webTabInner.innerHTML='<div class="loading-text">Searching web index…</div>';
+  if(/\bnews\b/i.test(q))injectNewsCard();
+  fetchCaprica(q);
+  fetchImages(q);
+  fetchWebSources(q);
+  fetchKnowledgePanel(q);
+  fetchDictionary(q);
+  fetchDidYouMean(q);
 }
 
-/* ══════════════════════════════
-   CSE SEARCH
-══════════════════════════════ */
+function injectNewsCard(){
+  const a=document.createElement('a');
+  a.className='result-card';a.href='https://civica-group.github.io/news/';a.target='_blank';a.rel='noopener noreferrer';
+  a.style.borderColor='var(--crimson-border)';
+  a.innerHTML='<span class="result-card-title">Civica News</span><span class="result-card-snippet">The latest news and announcements from Civica.</span><span class="result-card-source">civica-group.github.io/news</span>';
+  webInner.innerHTML='';webInner.appendChild(a);webLabel.style.display='flex';
+}
 
-// Mount CSE elements once on page load — never tear them down
-(function initCSEMount() {
-  const boxEl = document.createElement('div');
-  boxEl.className = 'gcse-searchbox-only';
-  boxEl.setAttribute('data-gname', 'civica');
-  boxEl.style.cssText = 'position:absolute;opacity:0;pointer-events:none;height:0;overflow:hidden;';
-
-  const resEl = document.createElement('div');
-  resEl.className = 'gcse-searchresults-only';
-  resEl.setAttribute('data-gname', 'civica');
-
-  cseMount.appendChild(boxEl);
-  cseMount.appendChild(resEl);
-})();
-
-// Called by Google CSE once its script is ready
-window.__gcse = {
-  callback: function() {
-    // CSE is ready; any queued search can now fire
-    if (window.__cseQueue) {
-      triggerCSE(window.__cseQueue);
-      window.__cseQueue = null;
+/* DID YOU MEAN */
+async function fetchDidYouMean(q){
+  try{
+    const p=new URLSearchParams({action:'query',list:'search',srsearch:q,srnamespace:'0',srlimit:'1',srprop:'',srinfo:'suggestion',format:'json',origin:'*'});
+    const res=await fetch(`${WIKI_SEARCH}?${p}`);
+    const data=await res.json();
+    const sug=data?.query?.searchinfo?.suggestion;
+    if(sug&&sug.toLowerCase()!==q.toLowerCase()){
+      dymWrap.innerHTML=`<div class="did-you-mean">Did you mean: <a id="dym-link">${esc(sug)}</a>?</div>`;
+      document.getElementById('dym-link').addEventListener('click',()=>triggerSearch(sug));
     }
-  }
-};
+  }catch(e){}
+}
 
-function triggerCSE(q) {
-  webLabel.style.display = 'none';
-  try {
-    const el = window.google?.search?.cse?.element?.getElement('civica');
-    if (el) {
-      el.execute(q);
-      webLabel.style.display = 'flex';
-    } else {
-      // CSE not ready yet — queue the query and wait
-      window.__cseQueue = q;
-      waitForCSE(q, 0);
+/* KNOWLEDGE PANEL */
+async function fetchKnowledgePanel(q){
+  try{
+    const p=new URLSearchParams({action:'query',titles:q,prop:'extracts',exintro:1,explaintext:1,exsentences:3,redirects:1,format:'json',origin:'*'});
+    const res=await fetch(`${WIKI_SEARCH}?${p}`);
+    const data=await res.json();
+    const page=Object.values(data?.query?.pages||{})[0];
+    if(!page||page.missing!==undefined||!page.extract)return;
+    let meta='';
+    const country=await tryCountry(q);
+    if(country){
+      meta=`<div class="kp-meta"><span><strong>Capital:</strong> ${esc(country.capital?.[0]||'—')}</span><span><strong>Population:</strong> ${Number(country.population).toLocaleString()}</span><span><strong>Region:</strong> ${esc(country.region||'—')}</span><span><strong>Currency:</strong> ${esc(Object.values(country.currencies||{})[0]?.name||'—')}</span></div>`;
     }
-  } catch(e) {
-    window.__cseQueue = q;
-    waitForCSE(q, 0);
-  }
+    kpSection.innerHTML=`<div class="knowledge-panel"><div class="kp-title">${esc(page.title)}</div><div class="kp-desc">${esc(page.extract)}</div>${meta}<div class="kp-source">Source: <a href="https://en.wikipedia.org/wiki/${encodeURIComponent(page.title.replace(/ /g,'_'))}" target="_blank" rel="noopener">Wikipedia — ${esc(page.title)}</a></div></div>`;
+    kpSection.style.display='block';
+  }catch(e){}
+}
+async function tryCountry(q){
+  try{const res=await fetch(`https://restcountries.com/v3.1/name/${encodeURIComponent(q)}?fullText=true&fields=name,capital,population,region,currencies`);if(!res.ok)return null;const d=await res.json();return d?.[0]||null}catch{return null}
 }
 
-function waitForCSE(q, n) {
-  if (n > 80) return;
-  try {
-    const el = window.google?.search?.cse?.element?.getElement('civica');
-    if (el) {
-      el.execute(q);
-      webLabel.style.display = 'flex';
-      window.__cseQueue = null;
-    } else {
-      setTimeout(() => waitForCSE(q, n + 1), 100);
+/* DICTIONARY */
+async function fetchDictionary(q){
+  if(q.trim().split(/\s+/).length>2)return;
+  try{
+    const res=await fetch(`${DICT_API}/${encodeURIComponent(q.trim())}`);
+    if(!res.ok)return;
+    const data=await res.json();
+    if(!Array.isArray(data)||!data[0])return;
+    const entry=data[0];
+    const phonetic=entry.phonetics?.find(p=>p.text)?.text||'';
+    const meanings=entry.meanings?.slice(0,2)||[];
+    let html=`<div class="dict-panel"><span class="dict-word">${esc(entry.word)}</span>${phonetic?`<span class="dict-phonetic">${esc(phonetic)}</span>`:''}`;
+    meanings.forEach(m=>{
+      html+=`<div class="dict-pos">${esc(m.partOfSpeech)}</div>`;
+      m.definitions?.slice(0,2).forEach(d=>{
+        html+=`<div class="dict-def">${esc(d.definition)}</div>`;
+        if(d.example)html+=`<div class="dict-example">"${esc(d.example)}"</div>`;
+      });
+    });
+    html+=`</div>`;
+    dictSection.innerHTML=html;dictSection.style.display='block';
+  }catch(e){}
+}
+
+/* CAPRICA */
+async function fetchCaprica(q){
+  const p=new URLSearchParams({action:'query',list:'search',srsearch:q,srnamespace:'0',srlimit:'5',srprop:'snippet',format:'json',origin:'*'});
+  try{
+    const res=await fetch(`${CAPRICA_API}?${p}`);
+    if(!res.ok){console.error('Caprica HTTP',res.status);wikiTabInner.innerHTML='<div class="wiki-empty">Could not reach Civica Records.</div>';return}
+    const data=await res.json();
+    const hits=data?.query?.search||[];
+    if(!hits.length){wikiTabInner.innerHTML='<div class="wiki-empty">No records found.</div>';return}
+    const cards=hits.map(hit=>{
+      const snip=hit.snippet?hit.snippet.replace(/<span class="searchmatch">/g,'<b>').replace(/<\/span>/g,'</b>'):'';
+      return `<a class="wiki-card" href="https://caprica.miraheze.org/wiki/${encodeURIComponent(hit.title.replace(/ /g,'_'))}" target="_blank" rel="noopener noreferrer"><span class="wiki-card-title">${esc(hit.title)}</span><span class="wiki-card-snippet">${snip}</span><span class="wiki-card-source">caprica.miraheze.org/wiki/${esc(hit.title.replace(/ /g,'_'))}</span></a>`;
+    }).join('');
+    wikiInner.innerHTML=cards;wikiSection.style.display='block';
+    wikiTabInner.innerHTML=cards;
+  }catch(e){console.error('Caprica failed:',e);wikiTabInner.innerHTML='<div class="wiki-empty">Could not reach Civica Records.</div>'}
+}
+
+/* IMAGES */
+async function fetchImages(q){
+  const images=[];
+  try{
+    const p=new URLSearchParams({action:'query',generator:'search',gsrsearch:q,gsrnamespace:'6',gsrlimit:'4',prop:'imageinfo',iiprop:'url|mime',format:'json',origin:'*'});
+    const res=await fetch(`${CAPRICA_API}?${p}`);
+    const data=await res.json();
+    for(const pg of Object.values(data?.query?.pages||{})){
+      const ii=pg.imageinfo?.[0];
+      if(ii&&ii.mime?.startsWith('image/')&&!ii.mime.includes('svg'))
+        images.push({src:ii.url,caption:pg.title.replace(/^File:/,''),href:`https://caprica.miraheze.org/wiki/${encodeURIComponent(pg.title.replace(/ /g,'_'))}`});
     }
-  } catch(e) { setTimeout(() => waitForCSE(q, n + 1), 100); }
+  }catch(e){}
+  if(images.length<4){
+    try{
+      const sp=new URLSearchParams({action:'query',list:'search',srsearch:q,srnamespace:'0',srlimit:'3',srprop:'',format:'json',origin:'*'});
+      const sr=await fetch(`${WIKI_SEARCH}?${sp}`);
+      const sd=await sr.json();
+      for(const hit of(sd?.query?.search||[])){
+        if(images.length>=4)break;
+        try{
+          const ip=new URLSearchParams({action:'query',titles:hit.title,prop:'pageimages',piprop:'original',format:'json',origin:'*'});
+          const ir=await fetch(`${WIKI_SEARCH}?${ip}`);
+          const id=await ir.json();
+          const pg=Object.values(id?.query?.pages||{})[0];
+          const src=pg?.original?.source;
+          if(src&&!src.endsWith('.svg'))images.push({src,caption:hit.title,href:`https://en.wikipedia.org/wiki/${encodeURIComponent(hit.title.replace(/ /g,'_'))}`});
+        }catch(e){}
+      }
+    }catch(e){}
+  }
+  if(!images.length)return;
+  imageInner.innerHTML=images.slice(0,4).map(img=>`<a class="image-strip-item" href="${esc(img.href)}" target="_blank" rel="noopener noreferrer"><img src="${esc(img.src)}" alt="${esc(img.caption)}" loading="lazy" onerror="this.closest('.image-strip-item').remove()"><span class="image-strip-caption">${esc(img.caption)}</span></a>`).join('');
+  imageSection.style.display='block';
 }
 
-/* ── Utility ── */
-function esc(s) {
-  return String(s)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+/* WEB SOURCES */
+async function fetchWebSources(q){
+  const results=[];
+  await Promise.allSettled([fetchWikipedia(q,results),fetchOpenLibrary(q,results),fetchWiktionary(q,results)]);
+  results.sort((a,b)=>(a.priority||99)-(b.priority||99));
+  const newsCard=webInner.querySelector('.result-card');
+  webInner.querySelectorAll('.loading-text').forEach(el=>el.remove());
+  if(!results.length&&!newsCard){webInner.innerHTML='<div class="wiki-empty">No results found.</div>';webTabInner.innerHTML='<div class="wiki-empty">No results found.</div>';return}
+  const cards=results.map(r=>`<a class="result-card" href="${esc(r.href)}" target="_blank" rel="noopener noreferrer"><span class="result-card-title">${esc(r.title)}</span><span class="result-card-snippet">${r.snippet}</span><span class="result-card-source">${esc(r.source)}</span></a>`).join('');
+  results.forEach(r=>{const a=document.createElement('a');a.className='result-card';a.href=r.href;a.target='_blank';a.rel='noopener noreferrer';a.innerHTML=`<span class="result-card-title">${esc(r.title)}</span><span class="result-card-snippet">${r.snippet}</span><span class="result-card-source">${esc(r.source)}</span>`;webInner.appendChild(a)});
+  webTabInner.innerHTML=cards;
+  webLabel.style.display='flex';
 }
+async function fetchWikipedia(q,out){
+  const p=new URLSearchParams({action:'query',list:'search',srsearch:q,srnamespace:'0',srlimit:'5',srprop:'snippet',format:'json',origin:'*'});
+  const res=await fetch(`${WIKI_SEARCH}?${p}`);const data=await res.json();
+  (data?.query?.search||[]).forEach(hit=>out.push({title:hit.title,snippet:hit.snippet?hit.snippet.replace(/<span class="searchmatch">/g,'<b>').replace(/<\/span>/g,'</b>'):'',href:`https://en.wikipedia.org/wiki/${encodeURIComponent(hit.title.replace(/ /g,'_'))}`,source:'en.wikipedia.org',priority:1}));
+}
+async function fetchOpenLibrary(q,out){
+  try{
+    const res=await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(q)}&limit=3&fields=title,author_name,first_publish_year,key`);
+    if(!res.ok)return;const data=await res.json();
+    (data?.docs||[]).forEach(b=>{if(!b.title)return;out.push({title:b.title,snippet:esc((b.author_name?.[0]||'')+(b.first_publish_year?' · '+b.first_publish_year:'')),href:`https://openlibrary.org${b.key}`,source:'openlibrary.org',priority:2})});
+  }catch(e){}
+}
+async function fetchWiktionary(q,out){
+  if(q.trim().split(/\s+/).length>2)return;
+  try{
+    const res=await fetch(`https://en.wiktionary.org/api/rest_v1/page/summary/${encodeURIComponent(q.trim())}`);
+    if(!res.ok)return;const data=await res.json();
+    if(!data?.title||!data?.extract)return;
+    out.push({title:data.title,snippet:esc(data.extract.slice(0,200))+(data.extract.length>200?'…':''),href:data.content_urls?.desktop?.page||`https://en.wiktionary.org/wiki/${encodeURIComponent(q)}`,source:'en.wiktionary.org',priority:3});
+  }catch(e){}
+}
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 </script>
 </body>
 </html>
