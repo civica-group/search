@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Civica Query</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:            #F4EFE6;
+  --bg-card:       #EDE7DA;
+  --bg-input:      #FDFAF5;
+  --text:          #1C1915;
+  --text-dim:      #4B453C;
+  --text-muted:    #8A8278;
+  --crimson:       #8B2E2E;
+  --crimson-hover: #A03535;
+  --crimson-light: rgba(139,46,46,0.07);
+  --crimson-border:rgba(139,46,46,0.28);
+  --border:        rgba(28,25,21,0.12);
+  --border-strong: rgba(28,25,21,0.2);
+  --serif:         'Lora', Georgia, serif;
+  --sans:          'Inter', system-ui, sans-serif;
+  --ease:          cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html, body { height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--serif);
+  font-weight: 400;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+  opacity: 0;
+  animation: fadeIn 600ms var(--ease) 60ms forwards;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Shared search bar ── */
+.search-form { width: 100%; max-width: 560px; display: flex; }
+
+.search-input {
+  flex: 1;
+  background: var(--bg-input);
+  border: 1px solid var(--border-strong);
+  border-right: none;
+  border-radius: 2px 0 0 2px;
+  padding: 0.75rem 1.1rem;
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: var(--text);
+  outline: none;
+  caret-color: var(--crimson);
+  transition: border-color 180ms, box-shadow 180ms;
+}
+.search-input::placeholder { color: var(--text-muted); font-style: italic; }
+.search-input:focus {
+  border-color: var(--crimson-border);
+  box-shadow: 0 0 0 2px var(--crimson-light);
+}
+.search-input:focus + .search-btn { border-color: var(--crimson-border); }
+
+.search-btn {
+  background: var(--crimson);
+  border: 1px solid var(--crimson);
+  border-radius: 0 2px 2px 0;
+  padding: 0.75rem 1.2rem;
+  color: #FAF6EF;
+  font-family: var(--sans);
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 0.45rem;
+  transition: background 180ms;
+}
+.search-btn:hover { background: var(--crimson-hover); border-color: var(--crimson-hover); }
+.search-btn svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ════ HOME ════ */
+#view-home {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 100vh; padding: 4rem 1.5rem;
+}
+#view-home.hidden { display: none; }
+
+/* Top rule */
+.top-rule { position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--crimson); }
+
+/* Logo */
+.logo-wrap { text-align: center; margin-bottom: 2.6rem; }
+
+.logo-main {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(3.8rem, 9vw, 6.5rem);
+  color: var(--text);
+  letter-spacing: 0.1em;
+  line-height: 1;
+  display: block;
+  user-select: none;
+}
+
+.logo-sub {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-style: italic;
+  font-size: clamp(0.85rem, 2vw, 1.15rem);
+  color: var(--crimson);
+  letter-spacing: 0.08em;
+  display: block;
+  margin-top: 0.4rem;
+  user-select: none;
+}
+
+/* Thin rule under logo */
+.logo-rule {
+  width: 48px; height: 1px;
+  background: var(--crimson);
+  margin: 1.8rem auto 2rem;
+  opacity: 0.5;
+}
+
+.tagline {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-style: italic;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+  margin-bottom: 2.2rem;
+  text-align: center;
+}
+
+/* Footer */
+.home-foot {
+  position: absolute; bottom: 1.8rem; left: 0; right: 0;
+  text-align: center;
+}
+.home-foot-text {
+  font-family: var(--sans);
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ════ RESULTS ════ */
+#view-results { display: none; flex-direction: column; min-height: 100vh; }
+#view-results.visible { display: flex; }
+
+.results-top-rule { height: 3px; background: var(--crimson); flex-shrink: 0; }
+
+.results-header {
+  display: flex; align-items: center; gap: 2rem;
+  padding: 1.1rem 2.6rem;
+  border-bottom: 1px solid var(--border-strong);
+  background: var(--bg);
+  position: sticky; top: 0; z-index: 100;
+}
+
+.results-logo { cursor: pointer; flex-shrink: 0; line-height: 1; }
+.results-logo-main {
+  font-family: var(--serif); font-weight: 600; font-size: 1.3rem;
+  color: var(--text); letter-spacing: 0.1em; user-select: none; display: block;
+}
+.results-logo-sub {
+  font-family: var(--serif); font-weight: 400; font-style: italic;
+  font-size: 0.58rem; color: var(--crimson); letter-spacing: 0.1em;
+  user-select: none; display: block; margin-top: 0.1rem;
+}
+
+.results-header .search-form { flex: 1; max-width: 560px; }
+.results-header .search-input { padding: 0.6rem 0.95rem; font-size: 0.88rem; }
+.results-header .search-btn  { padding: 0.6rem 1rem; }
+
+.results-body { padding: 2rem 2.6rem 5rem; flex: 1; max-width: 820px; }
+
+.results-status {
+  font-family: var(--sans); font-size: 0.67rem;
+  color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase;
+  margin-bottom: 1.8rem; padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--border);
+}
+.results-status .query-echo { color: var(--text-dim); font-style: italic; font-family: var(--serif); }
+
+/* ── Wiki results section ── */
+.section-label {
+  font-family: var(--sans); font-size: 0.6rem;
+  color: var(--crimson); letter-spacing: 0.18em; text-transform: uppercase;
+  margin-bottom: 0.9rem; display: flex; align-items: center; gap: 0.7rem;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.wiki-results { margin-bottom: 2.4rem; }
+
+.wiki-card {
+  display: block; text-decoration: none;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 0.9rem 1.1rem;
+  margin-bottom: 0.4rem;
+  transition: border-color 160ms, background 160ms;
+}
+.wiki-card:hover {
+  border-color: var(--crimson-border);
+  background: var(--crimson-light);
+}
+.wiki-card-title {
+  font-family: var(--serif); font-weight: 500; font-size: 0.9rem;
+  color: var(--crimson); margin-bottom: 0.25rem; display: block;
+}
+.wiki-card-snippet {
+  font-family: var(--serif); font-size: 0.78rem;
+  color: var(--text-dim); line-height: 1.65;
+}
+.wiki-card-snippet b { font-weight: 600; color: var(--text); }
+.wiki-card-source {
+  font-family: var(--sans); font-size: 0.62rem;
+  color: var(--text-muted); letter-spacing: 0.05em;
+  margin-top: 0.35rem; display: block;
+}
+
+.wiki-empty {
+  font-family: var(--serif); font-style: italic;
+  font-size: 0.8rem; color: var(--text-muted);
+  padding: 0.8rem 0; margin-bottom: 2rem;
+}
+
+/* ── Web results (CSE) section ── */
+.web-results-wrap { margin-top: 0.4rem; }
+
+/* ── CSE overrides ── */
+.gsc-search-box, .gsc-search-box-tools, .gsc-above-wrapper-area,
+.gsc-orderby-container, .gsc-result-info-container, .gsst_a { display: none !important; }
+
+.gsc-control-cse, .gsc-control-cse-en {
+  background: transparent !important; border: none !important;
+  padding: 0 !important; font-family: var(--serif) !important;
+}
+
+.gsc-webResult.gsc-result {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 2px !important;
+  padding: 0.9rem 1.1rem !important;
+  margin-bottom: 0.4rem !important;
+  transition: border-color 160ms, background 160ms !important;
+}
+.gsc-webResult.gsc-result:hover {
+  border-color: var(--crimson-border) !important;
+  background: var(--crimson-light) !important;
+}
+
+.gs-title, .gs-title b, .gs-title * {
+  color: var(--crimson) !important;
+  font-family: var(--serif) !important; font-weight: 500 !important;
+  font-size: 0.9rem !important; text-decoration: none !important;
+}
+
+.gs-visibleUrl, .gs-visibleUrl-long, .gsc-url-top, .gsc-url-bottom {
+  color: var(--text-muted) !important; font-family: var(--sans) !important;
+  font-weight: 300 !important; font-size: 0.65rem !important; letter-spacing: 0.04em !important;
+}
+
+.gs-snippet, .gs-bidi-start-align div {
+  font-family: var(--serif) !important; font-size: 0.78rem !important;
+  color: var(--text-dim) !important; line-height: 1.65 !important;
+}
+.gs-snippet b { color: var(--text) !important; font-weight: 600 !important; }
+
+.gsc-cursor-box { margin-top: 1.8rem !important; }
+.gsc-cursor-page {
+  background: var(--bg-input) !important;
+  border: 1px solid var(--border-strong) !important; border-radius: 2px !important;
+  color: var(--text-dim) !important; font-family: var(--serif) !important;
+  font-size: 0.75rem !important; padding: 0.3rem 0.65rem !important;
+  margin-right: 0.25rem !important; display: inline-block !important; cursor: pointer !important;
+  transition: all 150ms !important;
+}
+.gsc-cursor-current-page {
+  background: var(--crimson) !important; border-color: var(--crimson) !important;
+  color: #FAF6EF !important;
+}
+.gsc-cursor-page:hover { border-color: var(--crimson-border) !important; color: var(--crimson) !important; }
+
+.gs-no-results-result .gs-snippet {
+  background: transparent !important; border: 1px solid var(--border) !important;
+  border-radius: 2px !important; color: var(--text-muted) !important;
+  font-style: italic !important; padding: 1rem !important;
+}
+
+.gsc-adBlock, .gsc-adBlock-container, .gcsc-branding,
+.gcsc-branding-clickable, .gcsc-find-more-on-google,
+.gcsc-find-more-on-google-root, .gcsc-branding-text,
+.gcsc-branding-img, .gcsc-branding-img-noclear { display: none !important; }
+
+.gsc-thumbnail { border-radius: 1px !important; opacity: 0.8 !important; border: 1px solid var(--border) !important; }
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<main id="view-home">
+  <div class="top-rule"></div>
+
+  <div class="logo-wrap">
+    <span class="logo-main">CIVICA</span>
+    <span class="logo-sub">Query</span>
+  </div>
+
+  <div class="logo-rule"></div>
+
+  <p class="tagline">The public information index of the Republic of Caprica.</p>
+
+  <form class="search-form" id="home-form">
+    <input class="search-input" id="home-input" type="text"
+      placeholder="Enter your query…"
+      autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="off">
+    <button class="search-btn" type="submit">
+      Search <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
+  </form>
+
+  <div class="home-foot">
+    <div class="home-foot-text">Office of Public Information — Republic of Caprica — 2052</div>
+  </div>
+</main>
+
+<!-- RESULTS -->
+<section id="view-results">
+  <div class="results-top-rule"></div>
+
+  <header class="results-header">
+    <div class="results-logo" id="back-home" role="button" tabindex="0">
+      <span class="results-logo-main">CIVICA</span>
+      <span class="results-logo-sub">Query</span>
+    </div>
+    <form class="search-form" id="results-form">
+      <input class="search-input" id="results-input" type="text"
+        placeholder="Enter your query…"
+        autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="off">
+      <button class="search-btn" type="submit">
+        Search <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </form>
+  </header>
+
+  <div class="results-body">
+    <div class="results-status" id="results-status"></div>
+
+    <!-- Wiki results -->
+    <div id="wiki-section" class="wiki-results" style="display:none">
+      <div class="section-label">Civica Records</div>
+      <div id="wiki-results-inner"></div>
+    </div>
+
+    <!-- CSE web results -->
+    <div class="web-results-wrap">
+      <div class="section-label" id="web-label" style="display:none">Web Index</div>
+      <div id="cse-mount"></div>
+    </div>
+  </div>
+</section>
+
+<script async src="https://cse.google.com/cse.js?cx=b19f9875f71f2476a"></script>
+
+<script>
+const WIKI_API = 'https://caprica.miraheze.org/api.php';
+
+const viewHome     = document.getElementById('view-home');
+const viewResults  = document.getElementById('view-results');
+const homeForm     = document.getElementById('home-form');
+const homeInput    = document.getElementById('home-input');
+const resultsForm  = document.getElementById('results-form');
+const resultsInput = document.getElementById('results-input');
+const statusEl     = document.getElementById('results-status');
+const wikiSection  = document.getElementById('wiki-section');
+const wikiInner    = document.getElementById('wiki-results-inner');
+const webLabel     = document.getElementById('web-label');
+const cseMount     = document.getElementById('cse-mount');
+const backBtn      = document.getElementById('back-home');
+
+/* ── Navigation ── */
+function goHome() {
+  viewHome.classList.remove('hidden');
+  viewResults.classList.remove('visible');
+  homeInput.focus();
+}
+function goResults(q) {
+  viewHome.classList.add('hidden');
+  viewResults.classList.add('visible');
+  resultsInput.value = q;
+  statusEl.innerHTML = `Showing results for <span class="query-echo">${esc(q)}</span>`;
+  window.scrollTo(0, 0);
+}
+
+backBtn.addEventListener('click', goHome);
+backBtn.addEventListener('keydown', e => e.key === 'Enter' && goHome());
+
+homeForm.addEventListener('submit', e => {
+  e.preventDefault();
+  const q = homeInput.value.trim();
+  if (!q) return;
+  goResults(q);
+  runAll(q);
+});
+resultsForm.addEventListener('submit', e => {
+  e.preventDefault();
+  const q = resultsInput.value.trim();
+  if (!q) return;
+  goResults(q);
+  runAll(q);
+});
+
+/* ── Run both sources ── */
+function runAll(q) {
+  wikiSection.style.display = 'none';
+  wikiInner.innerHTML = '';
+  webLabel.style.display = 'none';
+  fetchWiki(q);
+  triggerCSE(q);
+}
+
+
+/* ══════════════════════════════
+   WIKI SEARCH (MediaWiki API)
+══════════════════════════════ */
+async function fetchWiki(q) {
+  try {
+    const url = `${WIKI_API}?action=query&list=search&srsearch=${encodeURIComponent(q)}&srnamespace=0&srlimit=5&srprop=snippet&format=json&origin=*`;
+    const res  = await fetch(url);
+    const data = await res.json();
+    const hits = data?.query?.search || [];
+
+    if (hits.length === 0) {
+      // No wiki results — don't show section at all
+      return;
+    }
+
+    wikiInner.innerHTML = '';
+    hits.forEach(hit => {
+      const a = document.createElement('a');
+      a.className = 'wiki-card';
+      a.href = `https://caprica.miraheze.org/wiki/${encodeURIComponent(hit.title.replace(/ /g,'_'))}`;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+
+      const snippet = hit.snippet
+        ? hit.snippet.replace(/<span class="searchmatch">/g, '<b>').replace(/<\/span>/g, '</b>')
+        : '';
+
+      a.innerHTML = `
+        <span class="wiki-card-title">${esc(hit.title)}</span>
+        <span class="wiki-card-snippet">${snippet}</span>
+        <span class="wiki-card-source">caprica.miraheze.org/wiki/${esc(hit.title.replace(/ /g,'_'))}</span>`;
+
+      wikiInner.appendChild(a);
+    });
+
+    wikiSection.style.display = 'block';
+
+  } catch(e) {
+    console.warn('Wiki fetch failed:', e);
+  }
+}
+
+/* ══════════════════════════════
+   CSE SEARCH
+══════════════════════════════ */
+
+// Mount CSE elements once on page load — never tear them down
+(function initCSEMount() {
+  const boxEl = document.createElement('div');
+  boxEl.className = 'gcse-searchbox-only';
+  boxEl.setAttribute('data-gname', 'civica');
+  boxEl.style.cssText = 'position:absolute;opacity:0;pointer-events:none;height:0;overflow:hidden;';
+
+  const resEl = document.createElement('div');
+  resEl.className = 'gcse-searchresults-only';
+  resEl.setAttribute('data-gname', 'civica');
+
+  cseMount.appendChild(boxEl);
+  cseMount.appendChild(resEl);
+})();
+
+// Called by Google CSE once its script is ready
+window.__gcse = {
+  callback: function() {
+    // CSE is ready; any queued search can now fire
+    if (window.__cseQueue) {
+      triggerCSE(window.__cseQueue);
+      window.__cseQueue = null;
+    }
+  }
+};
+
+function triggerCSE(q) {
+  webLabel.style.display = 'none';
+  try {
+    const el = window.google?.search?.cse?.element?.getElement('civica');
+    if (el) {
+      el.execute(q);
+      webLabel.style.display = 'flex';
+    } else {
+      // CSE not ready yet — queue the query and wait
+      window.__cseQueue = q;
+      waitForCSE(q, 0);
+    }
+  } catch(e) {
+    window.__cseQueue = q;
+    waitForCSE(q, 0);
+  }
+}
+
+function waitForCSE(q, n) {
+  if (n > 80) return;
+  try {
+    const el = window.google?.search?.cse?.element?.getElement('civica');
+    if (el) {
+      el.execute(q);
+      webLabel.style.display = 'flex';
+      window.__cseQueue = null;
+    } else {
+      setTimeout(() => waitForCSE(q, n + 1), 100);
+    }
+  } catch(e) { setTimeout(() => waitForCSE(q, n + 1), 100); }
+}
+
+/* ── Utility ── */
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
