@@ -6,34 +6,835 @@
 <title>Civica Query</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#F4EFE6;--bg-card:#EDE7DA;--bg-input:#FDFAF5;--bg-panel:#E8E1D4;
+  --bg:#F4EFE6;--bg-card:#EDE7DA;--bg-input:#FDFAF5;--bg-panel:#E8E1D4;--bg-panel2:#E2DBCe;
   --text:#1C1915;--text-dim:#4B453C;--text-muted:#8A8278;
   --crimson:#8B2E2E;--crimson-hover:#A03535;--crimson-light:rgba(139,46,46,0.07);--crimson-border:rgba(139,46,46,0.28);
   --border:rgba(28,25,21,0.12);--border-strong:rgba(28,25,21,0.2);
   --serif:'Lora',Georgia,serif;--sans:'Inter',system-ui,sans-serif;--ease:cubic-bezier(0.22,1,0.36,1);
+  --gold:#7A6030;
 }
 body.dark{
-  --bg:#161310;--bg-card:#1E1B17;--bg-input:#232019;--bg-panel:#1A1714;
+  --bg:#161310;--bg-card:#1E1B17;--bg-input:#232019;--bg-panel:#1A1714;--bg-panel2:#201D19;
   --text:#EDE7DA;--text-dim:#B8B0A4;--text-muted:#6B6560;
   --crimson:#C0504A;--crimson-hover:#D06060;--crimson-light:rgba(192,80,74,0.1);--crimson-border:rgba(192,80,74,0.3);
   --border:rgba(237,231,218,0.1);--border-strong:rgba(237,231,218,0.18);
+  --gold:#C8A84B;
 }
 html,body{height:100%}
 body{background:var(--bg);color:var(--text);font-family:var(--serif);font-weight:400;line-height:1.6;min-height:100vh;overflow-x:hidden;opacity:0;animation:fadeIn 600ms var(--ease) 60ms forwards;transition:background 250ms,color 250ms}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-.search-wrap{position:relative;width:100%;max-width:560px}
+.search-wrap{position:relative;width:100%;max-width:580px}
 .search-form{width:100%;display:flex}
 .search-input{flex:1;background:var(--bg-input);border:1px solid var(--border-strong);border-right:none;border-radius:2px 0 0 2px;padding:.75rem 1.1rem;font-family:var(--serif);font-size:.95rem;color:var(--text);outline:none;caret-color:var(--crimson);transition:border-color 180ms,box-shadow 180ms}
 .search-input::placeholder{color:var(--text-muted);font-style:italic}
 .search-input:focus{border-color:var(--crimson-border);box-shadow:0 0 0 2px var(--crimson-light)}
-.search-btn{background:var(--crimson);border:1px solid var(--crimson);border-radius:0 2px 2px 0;padding:.75rem 1.2rem;color:#FAF6EF;font-family:var(--sans);font-size:.7rem;font-weight:400;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;gap:.45rem;transition:background 180ms}
+.search-btn{background:var(--crimson);border:1px solid var(--crimson);border-radius:0 2px 2px 0;padding:.75rem 1.2rem;color:#FAF6EF;font-family:var(--sans);font-size:.7rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;gap:.45rem;transition:background 180ms;white-space:nowrap}
 .search-btn:hover{background:var(--crimson-hover);border-color:var(--crimson-hover)}
 .search-btn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.history-dropdown{position:absolute;top:100%;left:0;width:calc(100% - 70px);background:var(--bg-input);border:1px solid var(--border-strong);border-top:none;border-radius:0 0 2px 2px;z-index:200;display:none}
+.history-dropdown.open{display:block}
+.history-item{padding:.5rem 1.1rem;font-family:var(--serif);font-size:.82rem;color:var(--text-dim);cursor:pointer;display:flex;align-items:center;gap:.6rem;transition:background 120ms}
+.history-item:hover{background:var(--crimson-light);color:var(--text)}
+.history-item svg{width:10px;height:10px;stroke:var(--text-muted);fill:none;stroke-width:2;flex-shrink:0}
+.history-clear{padding:.35rem 1.1rem;font-family:var(--sans);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);cursor:pointer;border-top:1px solid var(--border);text-align:right;transition:color 120ms}
+.history-clear:hover{color:var(--crimson)}
+
+#view-home{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:4rem 1.5rem}
+#view-home.hidden{display:none}
+.top-rule{position:absolute;top:0;left:0;right:0;height:3px;background:var(--crimson)}
+.logo-wrap{text-align:center;margin-bottom:2.6rem}
+.logo-main{font-family:var(--serif);font-weight:600;font-size:clamp(3.8rem,9vw,6.5rem);color:var(--text);letter-spacing:.1em;line-height:1;display:block;user-select:none}
+.logo-sub{font-family:var(--serif);font-weight:400;font-style:italic;font-size:clamp(.85rem,2vw,1.15rem);color:var(--crimson);letter-spacing:.08em;display:block;margin-top:.4rem;user-select:none}
+.logo-rule{width:48px;height:1px;background:var(--crimson);margin:1.8rem auto 2rem;opacity:.5}
+.home-foot{position:absolute;bottom:1.8rem;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:1rem}
+.news-btn{display:inline-flex;align-items:center;gap:.45rem;font-family:var(--sans);font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);text-decoration:none;border:1px solid var(--border-strong);border-radius:2px;padding:.45rem .9rem;transition:color 160ms,border-color 160ms}
+.news-btn:hover{color:var(--crimson);border-color:var(--crimson-border)}
+.news-btn svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.dark-toggle{background:none;border:1px solid var(--border-strong);border-radius:2px;padding:.45rem .6rem;cursor:pointer;color:var(--text-muted);display:flex;align-items:center;transition:color 160ms,border-color 160ms}
+.dark-toggle:hover{color:var(--crimson);border-color:var(--crimson-border)}
+.dark-toggle svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.home-cats{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-top:1.6rem;max-width:540px}
+.cat-chip{font-family:var(--sans);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);border:1px solid var(--border);border-radius:2px;padding:.3rem .7rem;cursor:pointer;transition:color 140ms,border-color 140ms,background 140ms;background:none}
+.cat-chip:hover{color:var(--crimson);border-color:var(--crimson-border);background:var(--crimson-light)}
+
+.home-recent{margin-top:2.2rem;width:100%;max-width:580px;text-align:left}
+.home-recent-label{font-family:var(--sans);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.6rem;display:flex;align-items:center;gap:.5rem}
+.home-recent-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.recent-list{display:flex;flex-direction:column;gap:.25rem}
+.recent-item{display:flex;align-items:baseline;gap:.6rem;font-family:var(--serif);font-size:.78rem;color:var(--text-dim);text-decoration:none;padding:.3rem 0;border-bottom:1px solid var(--border);transition:color 130ms}
+.recent-item:hover{color:var(--crimson)}
+.recent-item-title{flex:1}
+.recent-item-time{font-family:var(--sans);font-size:.6rem;color:var(--text-muted);flex-shrink:0}
+
+#view-results{display:none;flex-direction:column;min-height:100vh}
+#view-results.visible{display:flex}
+.results-top-rule{height:3px;background:var(--crimson);flex-shrink:0}
+.results-header{display:flex;align-items:center;gap:1.5rem;padding:1rem 2.6rem;border-bottom:1px solid var(--border-strong);background:var(--bg);position:sticky;top:0;z-index:100}
+.results-logo{cursor:pointer;flex-shrink:0;line-height:1}
+.results-logo-main{font-family:var(--serif);font-weight:600;font-size:1.3rem;color:var(--text);letter-spacing:.1em;user-select:none;display:block}
+.results-logo-sub{font-family:var(--serif);font-weight:400;font-style:italic;font-size:.58rem;color:var(--crimson);letter-spacing:.1em;user-select:none;display:block;margin-top:.1rem}
+.results-header .search-wrap{flex:1;max-width:560px}
+.results-header .search-input{padding:.6rem .95rem;font-size:.88rem}
+.results-header .search-btn{padding:.6rem 1rem}
+.header-dark-toggle{background:none;border:none;cursor:pointer;color:var(--text-muted);padding:.3rem;transition:color 160ms;flex-shrink:0}
+.header-dark-toggle:hover{color:var(--crimson)}
+.header-dark-toggle svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block}
+
+.results-tabs{display:flex;padding:0 2.6rem;border-bottom:1px solid var(--border-strong);background:var(--bg);position:sticky;top:57px;z-index:99;gap:.2rem}
+.tab-btn{font-family:var(--sans);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);border:none;background:none;cursor:pointer;padding:.65rem 1rem;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color 150ms,border-color 150ms}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--crimson);border-bottom-color:var(--crimson)}
+
+.results-body{padding:1.8rem 2.6rem 5rem;flex:1}
+.results-columns{display:grid;grid-template-columns:1fr 300px;gap:2rem;max-width:1100px}
+.results-main{min-width:0}
+.results-sidebar{min-width:0}
+@media(max-width:820px){.results-columns{grid-template-columns:1fr}.results-sidebar{display:none}}
+
+.results-status{font-family:var(--sans);font-size:.67rem;color:var(--text-muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:1.4rem;padding-bottom:.8rem;border-bottom:1px solid var(--border)}
+.results-status .query-echo{color:var(--text-dim);font-style:italic;font-family:var(--serif)}
+.did-you-mean{font-family:var(--serif);font-size:.82rem;color:var(--text-muted);margin-bottom:1rem;font-style:italic}
+.did-you-mean a{color:var(--crimson);cursor:pointer;text-decoration:underline}
+
+.section-label{font-family:var(--sans);font-size:.6rem;color:var(--crimson);letter-spacing:.18em;text-transform:uppercase;margin-bottom:.9rem;display:flex;align-items:center;gap:.7rem}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* CAPRICA PRIORITY CARDS */
+.caprica-results{margin-bottom:2rem}
+.caprica-card{display:block;text-decoration:none;background:var(--bg-panel);border:1px solid var(--border-strong);border-left:3px solid var(--crimson);border-radius:2px;padding:1rem 1.2rem;margin-bottom:.45rem;transition:border-color 160ms,background 160ms,transform 120ms;cursor:pointer}
+.caprica-card:hover{border-color:var(--crimson);background:var(--crimson-light);transform:translateX(2px)}
+.caprica-card-badge{font-family:var(--sans);font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;color:var(--crimson);margin-bottom:.3rem;display:flex;align-items:center;gap:.4rem}
+.caprica-card-badge svg{width:9px;height:9px;stroke:currentColor;fill:none;stroke-width:2}
+.caprica-card-title{font-family:var(--serif);font-weight:600;font-size:.95rem;color:var(--text);margin-bottom:.3rem;display:block}
+.caprica-card-snippet{font-family:var(--serif);font-size:.78rem;color:var(--text-dim);line-height:1.65;display:block}
+.caprica-card-snippet b{font-weight:600;color:var(--text)}
+.caprica-card-source{font-family:var(--sans);font-size:.58rem;color:var(--text-muted);letter-spacing:.05em;margin-top:.4rem;display:block}
+.caprica-card-actions{display:flex;gap:.4rem;margin-top:.6rem}
+.card-action-btn{font-family:var(--sans);font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);border:1px solid var(--border);border-radius:2px;padding:.2rem .5rem;cursor:pointer;background:none;transition:color 130ms,border-color 130ms}
+.card-action-btn:hover{color:var(--crimson);border-color:var(--crimson-border)}
+
+.knowledge-panel{background:var(--bg-panel);border:1px solid var(--border-strong);border-left:3px solid var(--crimson);border-radius:2px;padding:1.1rem 1.3rem;margin-bottom:1.4rem}
+.kp-title{font-family:var(--serif);font-weight:600;font-size:1.05rem;color:var(--text);margin-bottom:.3rem}
+.kp-desc{font-family:var(--serif);font-size:.82rem;color:var(--text-dim);line-height:1.7;margin-bottom:.7rem}
+.kp-meta{font-family:var(--sans);font-size:.62rem;color:var(--text-muted);letter-spacing:.05em;display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:.5rem}
+.kp-meta strong{color:var(--text-dim)}
+.kp-source{font-family:var(--sans);font-size:.58rem;color:var(--text-muted);margin-top:.4rem}
+.kp-source a{color:var(--crimson);text-decoration:none}
+.kp-source a:hover{text-decoration:underline}
+
+.dict-panel{background:var(--bg-panel);border:1px solid var(--border-strong);border-left:3px solid var(--gold);border-radius:2px;padding:1.1rem 1.3rem;margin-bottom:1.8rem}
+.dict-word{font-family:var(--serif);font-weight:600;font-size:1.1rem;color:var(--text)}
+.dict-phonetic{font-family:var(--serif);font-style:italic;font-size:.82rem;color:var(--text-muted);margin-left:.5rem}
+.dict-pos{font-family:var(--sans);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:.7rem 0 .3rem}
+.dict-def{font-family:var(--serif);font-size:.82rem;color:var(--text-dim);line-height:1.65;margin-bottom:.25rem}
+.dict-example{font-family:var(--serif);font-style:italic;font-size:.78rem;color:var(--text-muted);padding-left:.8rem;border-left:2px solid var(--border-strong);margin-top:.2rem}
+
+.result-card{display:block;text-decoration:none;background:var(--bg-card);border:1px solid var(--border);border-radius:2px;padding:.9rem 1.1rem;margin-bottom:.4rem;transition:border-color 160ms,background 160ms}
+.result-card:hover{border-color:var(--crimson-border);background:var(--crimson-light)}
+.result-card-title{font-family:var(--serif);font-weight:500;font-size:.9rem;color:var(--crimson);margin-bottom:.25rem;display:block}
+.result-card-snippet{font-family:var(--serif);font-size:.78rem;color:var(--text-dim);line-height:1.65}
+.result-card-snippet b{font-weight:600;color:var(--text)}
+.result-card-source{font-family:var(--sans);font-size:.62rem;color:var(--text-muted);letter-spacing:.05em;margin-top:.35rem;display:block}
+
+.wiki-empty,.loading-text{font-family:var(--serif);font-style:italic;font-size:.8rem;color:var(--text-muted);padding:.6rem 0}
+.spinner{width:13px;height:13px;border:2px solid var(--border-strong);border-top-color:var(--crimson);border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:.4rem}
+
+.image-strip{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.8rem}
+.image-strip-item{display:block;text-decoration:none;border:1px solid var(--border);border-radius:2px;overflow:hidden;transition:border-color 160ms;flex:0 0 auto}
+.image-strip-item:hover{border-color:var(--crimson-border)}
+.image-strip-item img{display:block;width:130px;height:90px;object-fit:cover;opacity:.9}
+.image-strip-caption{font-family:var(--sans);font-size:.58rem;color:var(--text-muted);letter-spacing:.05em;padding:.3rem .4rem;background:var(--bg-card);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px;display:block}
+
+.sidebar-panel{background:var(--bg-panel);border:1px solid var(--border);border-radius:2px;padding:1rem 1.1rem;margin-bottom:1.2rem}
+.sidebar-label{font-family:var(--sans);font-size:.55rem;letter-spacing:.15em;text-transform:uppercase;color:var(--crimson);margin-bottom:.8rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
+.sidebar-item{font-family:var(--serif);font-size:.78rem;color:var(--text-dim);padding:.28rem 0;border-bottom:1px solid var(--border);cursor:pointer;transition:color 130ms;display:flex;justify-content:space-between;align-items:center}
+.sidebar-item:last-child{border-bottom:none}
+.sidebar-item:hover{color:var(--crimson)}
+.sidebar-item-tag{font-family:var(--sans);font-size:.55rem;color:var(--text-muted);letter-spacing:.05em}
+
+.bookmarks-panel{margin-bottom:2rem}
+.bookmark-empty{font-family:var(--serif);font-style:italic;font-size:.8rem;color:var(--text-muted);padding:.6rem 0}
+.bookmark-item{display:flex;align-items:center;gap:.6rem;background:var(--bg-card);border:1px solid var(--border);border-radius:2px;padding:.7rem 1rem;margin-bottom:.35rem}
+.bookmark-item a{flex:1;text-decoration:none;font-family:var(--serif);font-size:.85rem;color:var(--crimson)}
+.bookmark-item a:hover{text-decoration:underline}
+.bookmark-remove{background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:.9rem;line-height:1;transition:color 130ms;padding:.1rem .2rem}
+.bookmark-remove:hover{color:var(--crimson)}
+.add-bookmark-btn{background:none;border:1px solid var(--border);border-radius:2px;padding:.3rem .7rem;font-family:var(--sans);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);cursor:pointer;transition:color 140ms,border-color 140ms;margin-bottom:1.2rem}
+.add-bookmark-btn:hover{color:var(--crimson);border-color:var(--crimson-border)}
+
+/* COMPARE */
+.compare-bar{background:var(--bg-panel2);border:1px solid var(--border-strong);border-radius:2px;padding:.7rem 1.1rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:.8rem;font-family:var(--sans);font-size:.65rem;color:var(--text-muted);flex-wrap:wrap}
+.compare-bar.hidden{display:none}
+.compare-tag{background:var(--crimson-light);border:1px solid var(--crimson-border);border-radius:2px;padding:.15rem .45rem;font-family:var(--sans);font-size:.6rem;color:var(--crimson);display:inline-flex;align-items:center;gap:.3rem}
+.compare-tag button{background:none;border:none;cursor:pointer;color:var(--crimson);font-size:.75rem;line-height:1;padding:0}
+.compare-btn{margin-left:auto;background:var(--crimson);color:#FAF6EF;border:none;border-radius:2px;padding:.35rem .8rem;font-family:var(--sans);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:background 150ms}
+.compare-btn:hover{background:var(--crimson-hover)}
+.compare-btn:disabled{opacity:.4;cursor:not-allowed}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:flex;align-items:center;justify-content:center;padding:1.5rem;backdrop-filter:blur(2px)}
+.modal-overlay.hidden{display:none}
+.modal-box{background:var(--bg);border:1px solid var(--border-strong);border-top:3px solid var(--crimson);border-radius:2px;width:100%;max-width:820px;max-height:85vh;overflow-y:auto;padding:1.8rem}
+.modal-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1.4rem}
+.modal-title{font-family:var(--serif);font-weight:600;font-size:1.05rem;color:var(--text)}
+.modal-close{background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:1.3rem;line-height:1;transition:color 130ms}
+.modal-close:hover{color:var(--crimson)}
+.compare-grid{display:grid;gap:1rem}
+.compare-col{background:var(--bg-panel);border:1px solid var(--border);border-left:3px solid var(--crimson);border-radius:2px;padding:1rem 1.2rem}
+.compare-col-title{font-family:var(--serif);font-weight:600;font-size:.95rem;color:var(--text);margin-bottom:.6rem}
+.compare-col-body{font-family:var(--serif);font-size:.8rem;color:var(--text-dim);line-height:1.7}
+.compare-loading{font-family:var(--serif);font-style:italic;font-size:.82rem;color:var(--text-muted);text-align:center;padding:2rem}
+
+.related-wrap{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.6rem;margin-bottom:2rem}
+.related-chip{font-family:var(--sans);font-size:.62rem;letter-spacing:.06em;color:var(--text-dim);border:1px solid var(--border-strong);border-radius:2px;padding:.3rem .65rem;cursor:pointer;transition:color 140ms,border-color 140ms,background 140ms;background:none;text-align:left}
+.related-chip:hover{color:var(--crimson);border-color:var(--crimson-border);background:var(--crimson-light)}
+
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--text);color:var(--bg);font-family:var(--sans);font-size:.7rem;letter-spacing:.08em;padding:.6rem 1rem;border-radius:2px;z-index:600;opacity:0;transform:translateY(8px);transition:opacity 200ms,transform 200ms;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- COMPARE MODAL -->
+<div class="modal-overlay hidden" id="compare-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title" id="compare-modal-title">Comparing Articles</span>
+      <button class="modal-close" id="compare-modal-close">×</button>
+    </div>
+    <div id="compare-modal-body"><div class="compare-loading"><span class="spinner"></span> Loading…</div></div>
+  </div>
+</div>
+
+<!-- HOME -->
+<main id="view-home">
+  <div class="top-rule"></div>
+  <div class="logo-wrap">
+    <span class="logo-main">CIVICA</span>
+    <span class="logo-sub">Query</span>
+  </div>
+  <div class="logo-rule"></div>
+  <div class="search-wrap">
+    <form class="search-form" id="home-form">
+      <input class="search-input" id="home-input" type="text" placeholder="Enter your query…" autocomplete="off" spellcheck="false">
+      <button class="search-btn" type="submit">Search <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </form>
+    <div class="history-dropdown" id="home-history"></div>
+  </div>
+  <div class="home-cats" id="home-cats"></div>
+  <div class="home-recent" id="home-recent" style="display:none">
+    <div class="home-recent-label">Recent on Civica Wiki</div>
+    <div class="recent-list" id="recent-list"></div>
+  </div>
+  <div class="home-foot">
+    <a class="news-btn" href="https://civica-group.github.io/news/" target="_blank" rel="noopener noreferrer">
+      Civica News <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+    </a>
+    <button class="dark-toggle" id="home-dark-toggle" title="Toggle dark mode">
+      <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+  </div>
+</main>
+
+<!-- RESULTS -->
+<section id="view-results">
+  <div class="results-top-rule"></div>
+  <header class="results-header">
+    <div class="results-logo" id="back-home" role="button" tabindex="0">
+      <span class="results-logo-main">CIVICA</span>
+      <span class="results-logo-sub">Query</span>
+    </div>
+    <div class="search-wrap">
+      <form class="search-form" id="results-form">
+        <input class="search-input" id="results-input" type="text" placeholder="Enter your query…" autocomplete="off" spellcheck="false">
+        <button class="search-btn" type="submit">Search <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      </form>
+      <div class="history-dropdown" id="results-history"></div>
+    </div>
+    <button class="header-dark-toggle" id="results-dark-toggle" title="Toggle dark mode">
+      <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+  </header>
+
+  <nav class="results-tabs">
+    <button class="tab-btn active" data-tab="all">All</button>
+    <button class="tab-btn" data-tab="civica">Civica Records</button>
+    <button class="tab-btn" data-tab="web">Web Index</button>
+    <button class="tab-btn" data-tab="bookmarks">Bookmarks</button>
+  </nav>
+
+  <div class="results-body">
+    <div id="tab-all">
+      <div class="results-status" id="results-status"></div>
+      <div id="dym-wrap"></div>
+      <button class="add-bookmark-btn" id="add-bookmark-btn">+ Bookmark this search</button>
+
+      <div class="compare-bar hidden" id="compare-bar">
+        <span>Compare:</span>
+        <div id="compare-tags" style="display:flex;gap:.4rem;flex-wrap:wrap;flex:1"></div>
+        <button class="compare-btn" id="compare-go-btn" disabled>Compare</button>
+      </div>
+
+      <div class="results-columns">
+        <div class="results-main">
+          <!-- CIVICA RECORDS — top priority -->
+          <div id="caprica-section" style="display:none">
+            <div class="section-label">Civica Records</div>
+            <div id="caprica-inner"></div>
+          </div>
+
+          <div id="dict-section" style="display:none"></div>
+
+          <div id="image-section" style="display:none">
+            <div class="section-label">Images</div>
+            <div class="image-strip" id="image-strip-inner"></div>
+          </div>
+
+          <div id="web-section">
+            <div class="section-label" id="web-label" style="display:none">Web Index</div>
+            <div id="web-results-inner"></div>
+          </div>
+
+          <div id="related-section" style="display:none">
+            <div class="section-label">Related Searches</div>
+            <div class="related-wrap" id="related-inner"></div>
+          </div>
+        </div>
+
+        <div class="results-sidebar">
+          <div id="kp-section" style="display:none"></div>
+
+          <div class="sidebar-panel" id="random-panel">
+            <div class="sidebar-label">Random Article</div>
+            <div id="random-inner"><div class="loading-text"><span class="spinner"></span></div></div>
+          </div>
+
+          <div class="sidebar-panel">
+            <div class="sidebar-label">Search Info</div>
+            <div id="search-stats-inner" style="font-family:var(--serif);font-size:.78rem;color:var(--text-muted);font-style:italic">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-civica" style="display:none"><div id="wiki-tab-inner"></div></div>
+    <div id="tab-web" style="display:none"><div id="web-tab-inner"></div></div>
+    <div id="tab-bookmarks" style="display:none">
+      <div class="section-label">Saved Searches</div>
+      <div class="bookmarks-panel" id="bookmarks-list"></div>
+    </div>
+  </div>
+</section>
+
+<script>
+// NOTE: Miraheze wikis use /w/api.php not /api.php
+const CAPRICA_API = 'https://caprica.miraheze.org/w/api.php';
+const WIKI_SEARCH = 'https://en.wikipedia.org/w/api.php';
+const DICT_API = 'https://api.dictionaryapi.dev/api/v2/entries/en';
+
+const viewHome = document.getElementById('view-home');
+const viewResults = document.getElementById('view-results');
+const homeForm = document.getElementById('home-form');
+const homeInput = document.getElementById('home-input');
+const resultsForm = document.getElementById('results-form');
+const resultsInput = document.getElementById('results-input');
+const statusEl = document.getElementById('results-status');
+const dymWrap = document.getElementById('dym-wrap');
+const kpSection = document.getElementById('kp-section');
+const dictSection = document.getElementById('dict-section');
+const imageSection = document.getElementById('image-section');
+const imageInner = document.getElementById('image-strip-inner');
+const capricaSection = document.getElementById('caprica-section');
+const capricaInner = document.getElementById('caprica-inner');
+const webLabel = document.getElementById('web-label');
+const webInner = document.getElementById('web-results-inner');
+const wikiTabInner = document.getElementById('wiki-tab-inner');
+const webTabInner = document.getElementById('web-tab-inner');
+const bookmarksList = document.getElementById('bookmarks-list');
+const addBmBtn = document.getElementById('add-bookmark-btn');
+const backBtn = document.getElementById('back-home');
+const relatedSection = document.getElementById('related-section');
+const relatedInner = document.getElementById('related-inner');
+const compareBar = document.getElementById('compare-bar');
+const compareTags = document.getElementById('compare-tags');
+const compareGoBtn = document.getElementById('compare-go-btn');
+const compareModal = document.getElementById('compare-modal');
+const compareModalTitle = document.getElementById('compare-modal-title');
+const compareModalBody = document.getElementById('compare-modal-body');
+const compareModalClose = document.getElementById('compare-modal-close');
+const randomInner = document.getElementById('random-inner');
+const searchStatsInner = document.getElementById('search-stats-inner');
+
+// ── DARK MODE ──────────────────────────────────
+const SUN = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`;
+const MOON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+function applyDark(on) {
+  document.body.classList.toggle('dark', on);
+  document.getElementById('home-dark-toggle').innerHTML = on ? SUN : MOON;
+  document.getElementById('results-dark-toggle').innerHTML = on ? SUN : MOON;
+  localStorage.setItem('cq-dark', on ? '1' : '0');
+}
+if (localStorage.getItem('cq-dark') === '1') applyDark(true);
+document.getElementById('home-dark-toggle').addEventListener('click', () => applyDark(!document.body.classList.contains('dark')));
+document.getElementById('results-dark-toggle').addEventListener('click', () => applyDark(!document.body.classList.contains('dark')));
+
+// ── TOAST ──────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── HISTORY ────────────────────────────────────
+function getHistory() { try { return JSON.parse(localStorage.getItem('cq-history') || '[]') } catch { return [] } }
+function addHistory(q) { let h = getHistory().filter(x => x !== q); h.unshift(q); localStorage.setItem('cq-history', JSON.stringify(h.slice(0, 8))) }
+function renderHistory(inp, drop) {
+  const h = getHistory();
+  const q = inp.value.trim().toLowerCase();
+  const f = q ? h.filter(x => x.toLowerCase().includes(q)) : h;
+  if (!f.length) { drop.classList.remove('open'); return }
+  drop.innerHTML = f.map(i => `<div class="history-item" data-q="${esc(i)}"><svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.75"/></svg>${esc(i)}</div>`).join('') + `<div class="history-clear">Clear history</div>`;
+  drop.classList.add('open');
+  drop.querySelectorAll('.history-item').forEach(el => el.addEventListener('click', () => { inp.value = el.dataset.q; drop.classList.remove('open'); triggerSearch(el.dataset.q) }));
+  drop.querySelector('.history-clear').addEventListener('click', () => { localStorage.removeItem('cq-history'); drop.classList.remove('open') });
+}
+function setupHistory(inp, drop) {
+  inp.addEventListener('input', () => renderHistory(inp, drop));
+  inp.addEventListener('focus', () => renderHistory(inp, drop));
+  document.addEventListener('click', e => { if (!inp.contains(e.target) && !drop.contains(e.target)) drop.classList.remove('open') });
+}
+setupHistory(homeInput, document.getElementById('home-history'));
+setupHistory(resultsInput, document.getElementById('results-history'));
+
+// ── BOOKMARKS ──────────────────────────────────
+function getBM() { try { return JSON.parse(localStorage.getItem('cq-bm') || '[]') } catch { return [] } }
+function saveBM(b) { localStorage.setItem('cq-bm', JSON.stringify(b)) }
+function renderBM() {
+  const b = getBM();
+  if (!b.length) { bookmarksList.innerHTML = '<div class="bookmark-empty">No saved searches yet.</div>'; return }
+  bookmarksList.innerHTML = b.map(q => `<div class="bookmark-item"><a href="#" data-q="${esc(q)}">${esc(q)}</a><button class="bookmark-remove" data-q="${esc(q)}">×</button></div>`).join('');
+  bookmarksList.querySelectorAll('a[data-q]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); triggerSearch(a.dataset.q); switchTab('all') }));
+  bookmarksList.querySelectorAll('.bookmark-remove').forEach(b => b.addEventListener('click', () => { saveBM(getBM().filter(x => x !== b.dataset.q)); renderBM() }));
+}
+let currentQ = '';
+addBmBtn.addEventListener('click', () => {
+  if (!currentQ) return;
+  const b = getBM().filter(x => x !== currentQ); b.unshift(currentQ); saveBM(b);
+  addBmBtn.textContent = '✓ Bookmarked';
+  showToast('Search bookmarked');
+  setTimeout(() => { addBmBtn.textContent = '+ Bookmark this search' }, 1800);
+});
+
+// ── COMPARE ────────────────────────────────────
+let compareQueue = [];
+function addToCompare(item) {
+  if (compareQueue.find(x => x.title === item.title)) { showToast('Already in compare'); return }
+  if (compareQueue.length >= 4) { showToast('Max 4 articles'); return }
+  compareQueue.push(item);
+  renderCompareBar();
+  showToast(`Added "${item.title}" to compare`);
+}
+function removeFromCompare(title) {
+  compareQueue = compareQueue.filter(x => x.title !== title);
+  renderCompareBar();
+}
+function renderCompareBar() {
+  if (!compareQueue.length) { compareBar.classList.add('hidden'); return }
+  compareBar.classList.remove('hidden');
+  compareTags.innerHTML = compareQueue.map(x => `<span class="compare-tag">${esc(x.title)}<button onclick="removeFromCompare(${JSON.stringify(x.title)})">×</button></span>`).join('');
+  compareGoBtn.disabled = compareQueue.length < 2;
+}
+compareGoBtn.addEventListener('click', openCompareModal);
+compareModalClose.addEventListener('click', () => compareModal.classList.add('hidden'));
+compareModal.addEventListener('click', e => { if (e.target === compareModal) compareModal.classList.add('hidden') });
+
+async function openCompareModal() {
+  compareModal.classList.remove('hidden');
+  compareModalTitle.textContent = `Comparing ${compareQueue.length} articles`;
+  compareModalBody.innerHTML = '<div class="compare-loading"><span class="spinner"></span> Loading articles…</div>';
+  const fetched = await Promise.all(compareQueue.map(async item => {
+    try {
+      const p = new URLSearchParams({ action: 'query', titles: item.title, prop: 'extracts', exintro: 1, explaintext: 1, exsentences: 6, redirects: 1, format: 'json', origin: '*' });
+      const res = await fetch(`${CAPRICA_API}?${p}`);
+      const data = await res.json();
+      const page = Object.values(data?.query?.pages || {})[0];
+      if (page && !page.missing && page.extract) return { title: item.title, body: page.extract, href: item.href };
+    } catch (e) {}
+    return { title: item.title, body: item.snippet || '(No extract available)', href: item.href };
+  }));
+  const cols = fetched.map(f => `<div class="compare-col"><div class="compare-col-title"><a href="${esc(f.href)}" target="_blank" rel="noopener" style="color:var(--crimson);text-decoration:none">${esc(f.title)}</a></div><div class="compare-col-body">${esc(f.body)}</div></div>`).join('');
+  compareModalBody.innerHTML = `<div class="compare-grid" style="grid-template-columns:repeat(${Math.min(fetched.length, 2)},1fr)">${cols}</div>`;
+}
+
+// ── TABS ───────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  ['all', 'civica', 'web', 'bookmarks'].forEach(t => document.getElementById('tab-' + t).style.display = t === name ? '' : 'none');
+  if (name === 'bookmarks') renderBM();
+}
+document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
+
+// ── NAV ────────────────────────────────────────
+function goHome() { viewHome.classList.remove('hidden'); viewResults.classList.remove('visible'); homeInput.focus() }
+function goResults(q) {
+  viewHome.classList.add('hidden'); viewResults.classList.add('visible');
+  resultsInput.value = q;
+  statusEl.innerHTML = `Showing results for <span class="query-echo">${esc(q)}</span>`;
+  window.scrollTo(0, 0); switchTab('all');
+}
+backBtn.addEventListener('click', goHome);
+backBtn.addEventListener('keydown', e => e.key === 'Enter' && goHome());
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && document.activeElement !== homeInput && document.activeElement !== resultsInput) {
+    e.preventDefault(); viewResults.classList.contains('visible') ? resultsInput.focus() : homeInput.focus();
+  }
+  if (e.key === 'Escape') {
+    document.getElementById('home-history').classList.remove('open');
+    document.getElementById('results-history').classList.remove('open');
+    compareModal.classList.add('hidden');
+  }
+});
+function triggerSearch(q) { if (!q) return; addHistory(q); goResults(q); runAll(q) }
+homeForm.addEventListener('submit', e => { e.preventDefault(); triggerSearch(homeInput.value.trim()) });
+resultsForm.addEventListener('submit', e => { e.preventDefault(); triggerSearch(resultsInput.value.trim()) });
+
+// ── CATEGORIES ─────────────────────────────────
+['Politics', 'People', 'Geography', 'History', 'Economy', 'Law', 'Military', 'Culture'].forEach(cat => {
+  const btn = document.createElement('button');
+  btn.className = 'cat-chip'; btn.textContent = cat;
+  btn.addEventListener('click', () => triggerSearch(cat));
+  document.getElementById('home-cats').appendChild(btn);
+});
+
+// ── RECENT EDITS ───────────────────────────────
+async function loadRecentEdits() {
+  try {
+    const p = new URLSearchParams({ action: 'query', list: 'recentchanges', rcnamespace: '0', rclimit: '5', rcprop: 'title|timestamp', rctype: 'edit|new', format: 'json', origin: '*' });
+    const res = await fetch(`${CAPRICA_API}?${p}`);
+    if (!res.ok) return;
+    const data = await res.json();
+    const changes = data?.query?.recentchanges || [];
+    if (!changes.length) return;
+    const rl = document.getElementById('recent-list');
+    rl.innerHTML = '';
+    changes.forEach(c => {
+      const a = document.createElement('a');
+      a.className = 'recent-item';
+      a.href = `https://caprica.miraheze.org/wiki/${encodeURIComponent(c.title.replace(/ /g, '_'))}`;
+      a.target = '_blank'; a.rel = 'noopener noreferrer';
+      const d = new Date(c.timestamp), diff = Date.now() - d.getTime(), m = Math.floor(diff / 60000);
+      const rel = m < 60 ? `${m}m ago` : m < 1440 ? `${Math.floor(m / 60)}h ago` : `${Math.floor(m / 1440)}d ago`;
+      a.innerHTML = `<span class="recent-item-title">${esc(c.title)}</span><span class="recent-item-time">${rel}</span>`;
+      rl.appendChild(a);
+    });
+    document.getElementById('home-recent').style.display = 'block';
+  } catch (e) {}
+}
+loadRecentEdits();
+
+// ── RANDOM ARTICLE (sidebar) ───────────────────
+async function loadRandomArticle() {
+  try {
+    const p = new URLSearchParams({ action: 'query', list: 'random', rnnamespace: '0', rnlimit: '4', format: 'json', origin: '*' });
+    const res = await fetch(`${CAPRICA_API}?${p}`);
+    const data = await res.json();
+    const articles = data?.query?.random || [];
+    if (!articles.length) { randomInner.innerHTML = '<div class="wiki-empty">None found.</div>'; return }
+    randomInner.innerHTML = articles.map(a => `<div class="sidebar-item" onclick="triggerSearch(${JSON.stringify(a.title)})">${esc(a.title)}<span class="sidebar-item-tag">→</span></div>`).join('');
+  } catch (e) {
+    randomInner.innerHTML = '<div class="wiki-empty">Could not load.</div>';
+  }
+}
+
+// ── ORCHESTRATOR ───────────────────────────────
+let searchStartTime = 0;
+function runAll(q) {
+  currentQ = q;
+  searchStartTime = Date.now();
+  addBmBtn.textContent = '+ Bookmark this search';
+  dymWrap.innerHTML = '';
+  kpSection.style.display = 'none'; kpSection.innerHTML = '';
+  dictSection.style.display = 'none'; dictSection.innerHTML = '';
+  imageSection.style.display = 'none'; imageInner.innerHTML = '';
+  capricaSection.style.display = 'none'; capricaInner.innerHTML = '<div class="loading-text"><span class="spinner"></span> Searching Civica Records…</div>';
+  capricaSection.style.display = 'block';
+  webLabel.style.display = 'none';
+  webInner.innerHTML = '<div class="loading-text"><span class="spinner"></span> Searching web index…</div>';
+  wikiTabInner.innerHTML = '<div class="loading-text"><span class="spinner"></span> Searching Civica Records…</div>';
+  webTabInner.innerHTML = '<div class="loading-text"><span class="spinner"></span> Searching web index…</div>';
+  relatedSection.style.display = 'none'; relatedInner.innerHTML = '';
+  searchStatsInner.innerHTML = '<span class="spinner"></span>';
+
+  if (/\bnews\b/i.test(q)) injectNewsCard();
+  fetchCaprica(q);
+  fetchImages(q);
+  fetchWebSources(q);
+  fetchKnowledgePanel(q);
+  fetchDictionary(q);
+  fetchDidYouMean(q);
+  fetchRelatedSearches(q);
+  loadRandomArticle();
+}
+
+function injectNewsCard() {
+  const a = document.createElement('a');
+  a.className = 'result-card'; a.href = 'https://civica-group.github.io/news/'; a.target = '_blank'; a.rel = 'noopener noreferrer';
+  a.style.borderColor = 'var(--crimson-border)';
+  a.innerHTML = '<span class="result-card-title">Civica News</span><span class="result-card-snippet">The latest news and announcements from Civica.</span><span class="result-card-source">civica-group.github.io/news</span>';
+  webInner.innerHTML = ''; webInner.appendChild(a); webLabel.style.display = 'flex';
+}
+
+// ── DID YOU MEAN ───────────────────────────────
+async function fetchDidYouMean(q) {
+  try {
+    const p = new URLSearchParams({ action: 'query', list: 'search', srsearch: q, srnamespace: '0', srlimit: '1', srprop: '', srinfo: 'suggestion', format: 'json', origin: '*' });
+    const res = await fetch(`${WIKI_SEARCH}?${p}`);
+    const data = await res.json();
+    const sug = data?.query?.searchinfo?.suggestion;
+    if (sug && sug.toLowerCase() !== q.toLowerCase()) {
+      dymWrap.innerHTML = `<div class="did-you-mean">Did you mean: <a id="dym-link">${esc(sug)}</a>?</div>`;
+      document.getElementById('dym-link').addEventListener('click', () => triggerSearch(sug));
+    }
+  } catch (e) {}
+}
+
+// ── KNOWLEDGE PANEL ────────────────────────────
+async function fetchKnowledgePanel(q) {
+  try {
+    const p = new URLSearchParams({ action: 'query', titles: q, prop: 'extracts', exintro: 1, explaintext: 1, exsentences: 3, redirects: 1, format: 'json', origin: '*' });
+    const res = await fetch(`${WIKI_SEARCH}?${p}`);
+    const data = await res.json();
+    const page = Object.values(data?.query?.pages || {})[0];
+    if (!page || page.missing !== undefined || !page.extract) return;
+    let meta = '';
+    const country = await tryCountry(q);
+    if (country) meta = `<div class="kp-meta"><span><strong>Capital:</strong> ${esc(country.capital?.[0] || '—')}</span><span><strong>Pop:</strong> ${Number(country.population).toLocaleString()}</span><span><strong>Region:</strong> ${esc(country.region || '—')}</span></div>`;
+    kpSection.innerHTML = `<div class="knowledge-panel"><div class="kp-title">${esc(page.title)}</div><div class="kp-desc">${esc(page.extract)}</div>${meta}<div class="kp-source">Source: <a href="https://en.wikipedia.org/wiki/${encodeURIComponent(page.title.replace(/ /g, '_'))}" target="_blank" rel="noopener">Wikipedia — ${esc(page.title)}</a></div></div>`;
+    kpSection.style.display = 'block';
+  } catch (e) {}
+}
+async function tryCountry(q) {
+  try { const res = await fetch(`https://restcountries.com/v3.1/name/${encodeURIComponent(q)}?fullText=true&fields=name,capital,population,region,currencies`); if (!res.ok) return null; const d = await res.json(); return d?.[0] || null } catch { return null }
+}
+
+// ── DICTIONARY ─────────────────────────────────
+async function fetchDictionary(q) {
+  if (q.trim().split(/\s+/).length > 2) return;
+  try {
+    const res = await fetch(`${DICT_API}/${encodeURIComponent(q.trim())}`);
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!Array.isArray(data) || !data[0]) return;
+    const entry = data[0];
+    const phonetic = entry.phonetics?.find(p => p.text)?.text || '';
+    const meanings = entry.meanings?.slice(0, 2) || [];
+    let html = `<div class="dict-panel"><span class="dict-word">${esc(entry.word)}</span>${phonetic ? `<span class="dict-phonetic">${esc(phonetic)}</span>` : ''}`;
+    meanings.forEach(m => {
+      html += `<div class="dict-pos">${esc(m.partOfSpeech)}</div>`;
+      m.definitions?.slice(0, 2).forEach(d => {
+        html += `<div class="dict-def">${esc(d.definition)}</div>`;
+        if (d.example) html += `<div class="dict-example">"${esc(d.example)}"</div>`;
+      });
+    });
+    html += `</div>`;
+    dictSection.innerHTML = html; dictSection.style.display = 'block';
+  } catch (e) {}
+}
+
+// ── CAPRICA (TOP PRIORITY) ─────────────────────
+async function fetchCaprica(q) {
+  const p = new URLSearchParams({
+    action: 'query',
+    list: 'search',
+    srsearch: q,
+    srnamespace: '0',
+    srlimit: '8',
+    srprop: 'snippet|titlesnippet',
+    format: 'json',
+    origin: '*'
+  });
+  try {
+    const res = await fetch(`${CAPRICA_API}?${p}`);
+    if (!res.ok) {
+      capricaInner.innerHTML = `<div class="wiki-empty">Could not reach Civica Records (HTTP ${res.status}). The wiki may be temporarily offline.</div>`;
+      wikiTabInner.innerHTML = capricaInner.innerHTML;
+      updateStats(0);
+      return;
+    }
+    const data = await res.json();
+    if (data.error) {
+      capricaInner.innerHTML = `<div class="wiki-empty">API error: ${esc(data.error.info || 'unknown')}</div>`;
+      wikiTabInner.innerHTML = capricaInner.innerHTML;
+      updateStats(0);
+      return;
+    }
+    const hits = data?.query?.search || [];
+    if (!hits.length) {
+      capricaInner.innerHTML = '<div class="wiki-empty">No Civica Records found for this query.</div>';
+      wikiTabInner.innerHTML = '<div class="wiki-empty">No records found.</div>';
+      updateStats(0);
+      return;
+    }
+
+    function buildCard(hit, idSuffix) {
+      const snip = hit.snippet
+        ? hit.snippet.replace(/<span class="searchmatch">/g, '<b>').replace(/<\/span>/g, '</b>')
+        : '';
+      const href = `https://caprica.miraheze.org/wiki/${encodeURIComponent(hit.title.replace(/ /g, '_'))}`;
+      const cardId = 'cc-' + idSuffix + '-' + Math.random().toString(36).slice(2);
+      const itemData = { title: hit.title, snippet: hit.snippet ? hit.snippet.replace(/<[^>]+>/g,'') : '', href };
+      const html = `
+        <div class="caprica-card" id="${cardId}">
+          <span class="caprica-card-badge">
+            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            Civica Records
+          </span>
+          <a href="${esc(href)}" target="_blank" rel="noopener noreferrer" style="text-decoration:none">
+            <span class="caprica-card-title">${esc(hit.title)}</span>
+          </a>
+          <span class="caprica-card-snippet">${snip || '<em style="color:var(--text-muted)">No preview available.</em>'}</span>
+          <span class="caprica-card-source">caprica.miraheze.org/wiki/${esc(hit.title.replace(/ /g, '_'))}</span>
+          <div class="caprica-card-actions">
+            <button class="card-action-btn" onclick="window.open('${esc(href)}','_blank')">Open →</button>
+            <button class="card-action-btn compare-add-btn">+ Compare</button>
+          </div>
+        </div>`;
+      return { html, itemData, cardId };
+    }
+
+    // Render in main column
+    const mainCards = hits.map(h => buildCard(h, 'main'));
+    capricaInner.innerHTML = mainCards.map(c => c.html).join('');
+    mainCards.forEach(({ itemData, cardId }) => {
+      const el = document.getElementById(cardId);
+      if (!el) return;
+      el.querySelector('.compare-add-btn').addEventListener('click', e => { e.stopPropagation(); addToCompare(itemData) });
+    });
+
+    // Mirror to Civica tab with fresh IDs
+    const tabCards = hits.map(h => buildCard(h, 'tab'));
+    wikiTabInner.innerHTML = tabCards.map(c => c.html).join('');
+    tabCards.forEach(({ itemData, cardId }) => {
+      const el = document.getElementById(cardId);
+      if (!el) return;
+      el.querySelector('.compare-add-btn').addEventListener('click', e => { e.stopPropagation(); addToCompare(itemData) });
+    });
+
+    updateStats(hits.length);
+  } catch (e) {
+    console.error('Caprica failed:', e);
+    capricaInner.innerHTML = '<div class="wiki-empty">Could not reach Civica Records. Check your connection.</div>';
+    wikiTabInner.innerHTML = capricaInner.innerHTML;
+    updateStats(0);
+  }
+}
+
+function updateStats(capricaCount) {
+  const elapsed = ((Date.now() - searchStartTime) / 1000).toFixed(2);
+  searchStatsInner.innerHTML = `
+    <div style="margin-bottom:.3rem;font-family:var(--serif);font-size:.78rem;color:var(--text-dim)">Civica Records: <strong>${capricaCount ?? '—'}</strong></div>
+    <div style="font-family:var(--serif);font-size:.78rem;color:var(--text-dim)">Time: <strong>${elapsed}s</strong></div>`;
+}
+
+// ── IMAGES ─────────────────────────────────────
+async function fetchImages(q) {
+  const images = [];
+  try {
+    const p = new URLSearchParams({ action: 'query', generator: 'search', gsrsearch: q, gsrnamespace: '6', gsrlimit: '4', prop: 'imageinfo', iiprop: 'url|mime', format: 'json', origin: '*' });
+    const res = await fetch(`${CAPRICA_API}?${p}`);
+    const data = await res.json();
+    for (const pg of Object.values(data?.query?.pages || {})) {
+      const ii = pg.imageinfo?.[0];
+      if (ii && ii.mime?.startsWith('image/') && !ii.mime.includes('svg'))
+        images.push({ src: ii.url, caption: pg.title.replace(/^File:/, ''), href: `https://caprica.miraheze.org/wiki/${encodeURIComponent(pg.title.replace(/ /g, '_'))}` });
+    }
+  } catch (e) {}
+  if (images.length < 4) {
+    try {
+      const sp = new URLSearchParams({ action: 'query', list: 'search', srsearch: q, srnamespace: '0', srlimit: '3', srprop: '', format: 'json', origin: '*' });
+      const sr = await fetch(`${WIKI_SEARCH}?${sp}`);
+      const sd = await sr.json();
+      for (const hit of (sd?.query?.search || [])) {
+        if (images.length >= 4) break;
+        try {
+          const ip = new URLSearchParams({ action: 'query', titles: hit.title, prop: 'pageimages', piprop: 'original', format: 'json', origin: '*' });
+          const ir = await fetch(`${WIKI_SEARCH}?${ip}`);
+          const id = await ir.json();
+          const pg = Object.values(id?.query?.pages || {})[0];
+          const src = pg?.original?.source;
+          if (src && !src.endsWith('.svg')) images.push({ src, caption: hit.title, href: `https://en.wikipedia.org/wiki/${encodeURIComponent(hit.title.replace(/ /g, '_'))}` });
+        } catch (e) {}
+      }
+    } catch (e) {}
+  }
+  if (!images.length) return;
+  imageInner.innerHTML = images.slice(0, 4).map(img => `<a class="image-strip-item" href="${esc(img.href)}" target="_blank" rel="noopener noreferrer"><img src="${esc(img.src)}" alt="${esc(img.caption)}" loading="lazy" onerror="this.closest('.image-strip-item').remove()"><span class="image-strip-caption">${esc(img.caption)}</span></a>`).join('');
+  imageSection.style.display = 'block';
+}
+
+// ── WEB SOURCES ────────────────────────────────
+async function fetchWebSources(q) {
+  const results = [];
+  await Promise.allSettled([fetchWikipedia(q, results), fetchOpenLibrary(q, results), fetchWiktionary(q, results)]);
+  results.sort((a, b) => (a.priority || 99) - (b.priority || 99));
+  webInner.querySelectorAll('.loading-text').forEach(el => el.remove());
+  if (!results.length) { webInner.innerHTML = '<div class="wiki-empty">No web results found.</div>'; webTabInner.innerHTML = '<div class="wiki-empty">No results found.</div>'; return }
+  const cards = results.map(r => `<a class="result-card" href="${esc(r.href)}" target="_blank" rel="noopener noreferrer"><span class="result-card-title">${esc(r.title)}</span><span class="result-card-snippet">${r.snippet}</span><span class="result-card-source">${esc(r.source)}</span></a>`).join('');
+  results.forEach(r => {
+    const a = document.createElement('a'); a.className = 'result-card'; a.href = r.href; a.target = '_blank'; a.rel = 'noopener noreferrer';
+    a.innerHTML = `<span class="result-card-title">${esc(r.title)}</span><span class="result-card-snippet">${r.snippet}</span><span class="result-card-source">${esc(r.source)}</span>`;
+    webInner.appendChild(a);
+  });
+  webTabInner.innerHTML = cards;
+  webLabel.style.display = 'flex';
+}
+async function fetchWikipedia(q, out) {
+  const p = new URLSearchParams({ action: 'query', list: 'search', srsearch: q, srnamespace: '0', srlimit: '5', srprop: 'snippet', format: 'json', origin: '*' });
+  const res = await fetch(`${WIKI_SEARCH}?${p}`); const data = await res.json();
+  (data?.query?.search || []).forEach(hit => out.push({ title: hit.title, snippet: hit.snippet ? hit.snippet.replace(/<span class="searchmatch">/g, '<b>').replace(/<\/span>/g, '</b>') : '', href: `https://en.wikipedia.org/wiki/${encodeURIComponent(hit.title.replace(/ /g, '_'))}`, source: 'en.wikipedia.org', priority: 1 }));
+}
+async function fetchOpenLibrary(q, out) {
+  try {
+    const res = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(q)}&limit=3&fields=title,author_name,first_publish_year,key`);
+    if (!res.ok) return; const data = await res.json();
+    (data?.docs || []).forEach(b => { if (!b.title) return; out.push({ title: b.title, snippet: esc((b.author_name?.[0] || '') + (b.first_publish_year ? ' · ' + b.first_publish_year : '')), href: `https://openlibrary.org${b.key}`, source: 'openlibrary.org', priority: 2 }) });
+  } catch (e) {}
+}
+async function fetchWiktionary(q, out) {
+  if (q.trim().split(/\s+/).length > 2) return;
+  try {
+    const res = await fetch(`https://en.wiktionary.org/api/rest_v1/page/summary/${encodeURIComponent(q.trim())}`);
+    if (!res.ok) return; const data = await res.json();
+    if (!data?.title || !data?.extract) return;
+    out.push({ title: data.title, snippet: esc(data.extract.slice(0, 200)) + (data.extract.length > 200 ? '…' : ''), href: data.content_urls?.desktop?.page || `https://en.wiktionary.org/wiki/${encodeURIComponent(q)}`, source: 'en.wiktionary.org', priority: 3 });
+  } catch (e) {}
+}
+
+// ── RELATED SEARCHES ───────────────────────────
+async function fetchRelatedSearches(q) {
+  try {
+    const res = await fetch(`${WIKI_SEARCH}?action=opensearch&search=${encodeURIComponent(q)}&limit=8&namespace=0&format=json&origin=*`);
+    const data = await res.json();
+    const suggestions = (data[1] || []).filter(s => s.toLowerCase() !== q.toLowerCase()).slice(0, 6);
+    if (!suggestions.length) return;
+    relatedInner.innerHTML = suggestions.map(s => `<button class="related-chip" onclick="triggerSearch(${JSON.stringify(s)})">${esc(s)}</button>`).join('');
+    relatedSection.style.display = 'block';
+  } catch (e) {}
+}
+
+function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') }
+</script>
+</body>
+</html>
 
 .history-dropdown{position:absolute;top:100%;left:0;width:calc(100% - 70px);background:var(--bg-input);border:1px solid var(--border-strong);border-top:none;border-radius:0 0 2px 2px;z-index:200;display:none}
 .history-dropdown.open{display:block}
